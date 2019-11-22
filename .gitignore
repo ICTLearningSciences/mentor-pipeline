@@ -1,0 +1,27 @@
+node_modules
+__pycache__
+*.pyc
+QuestionAnswerLog.csv
+build
+dist
+.DS_Store
+.log
+terraform.tfstate
+.vscode
+*.log
+.venv
+.coverage
+.coverage.*
+htmlcov
+
+# Secret Config Files
+*/secrets/*
+*password.txt
+
+# Mentor Data Files
+*/temp
+*/build
+*/videos
+
+data
+videos
