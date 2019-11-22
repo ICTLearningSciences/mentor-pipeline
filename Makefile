@@ -77,7 +77,7 @@ clean:
 
 # Runs a shell inside the data processing pipeline dockerfile
 .PHONY shell:
-shell: docker-image-exists $(WATSON_CREDENTIALS)
+shell: docker-image-exists
 	docker run \
 			-it \
 			--rm \
@@ -117,17 +117,3 @@ videos/mentors/%: data/mentors/% docker-image-exists
 			-e WATSON_USERNAME=$(WATSON_USERNAME) \
 			-e WATSON_PASSWORD=$(WATSON_PASSWORD) \
 			$(DOCKER_IMAGE) --mentor $* --videos-update --data=/app/mounts/data/mentors
-
-# # Build checkpoint from mentor data
-# .PHONY: checkpoint/%
-# checkpoint/%: data/mentors/%
-# 	cd $(PROJECT_ROOT)/checkpoint && \
-# 	CHECKPOINT=dev_latest $(MAKE) checkpoint-clean/mentor/$* checkpoint-train/mentor/$*
-# 	@echo ""
-# 	@echo "==== MAKE CHECKPOINT SUCCEEDED! ===="
-# 	@echo ""
-# 	@echo "If you have generated mentor videos, you can test the environment locally with:"
-# 	@echo "	cd .. && make local-run-dev"
-# 	@echo ""
-# 	@echo "Then view your mentor here:"
-# 	@echo "	http://localhost:8080/mentorpanel/?mentor=$*"
