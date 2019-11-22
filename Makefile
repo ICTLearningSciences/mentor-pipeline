@@ -33,7 +33,6 @@ format: $(VENV)
 
 PHONY: test
 test: $(VENV)
-	export PYTHONPATH=$(shell echo $${PYTHONPATH}):$(PWD)/src && \
 	$(VENV)/bin/py.test -vv $(args)
 
 .PHONY: test-format
@@ -86,7 +85,7 @@ shell: docker-image-exists $(WATSON_CREDENTIALS)
 			-e WATSON_USERNAME=$(WATSON_USERNAME) \
 			-e WATSON_PASSWORD=$(WATSON_PASSWORD) \
 			--entrypoint /bin/bash \
-			-v $(PWD)/src:/app \
+			-v $(PWD)/mentor_pipeline:/app/mentor_pipeline \
 			-v $(PWD)/data:/app/mounts/data \
 			-v $(PWD)/videos:/app/mounts/videos \
 		$(DOCKER_IMAGE)
@@ -101,7 +100,7 @@ data/mentors/%: data/mentors/%/build/recordings docker-image-exists $(WATSON_CRE
 	docker run \
 			--rm \
 			--name $(DOCKER_CONTAINER) \
-			-v $(PWD)/src:/app \
+			-v $(PWD)/mentor_pipeline:/app/mentor_pipeline \
 			-v $(PWD)/data:/app/mounts/data \
 			-e WATSON_USERNAME=$(WATSON_USERNAME) \
 			-e WATSON_PASSWORD=$(WATSON_PASSWORD) \
@@ -112,7 +111,7 @@ videos/mentors/%: data/mentors/% docker-image-exists
 	docker run \
 			--rm \
 			--name $(DOCKER_CONTAINER) \
-			-v $(PWD)/src:/app \
+			-v $(PWD)/mentor_pipeline:/app/mentor_pipeline \
 			-v $(PWD)/data:/app/mounts/data \
 			-v $(PWD)/videos:/app/mounts/videos \
 			-e WATSON_USERNAME=$(WATSON_USERNAME) \
