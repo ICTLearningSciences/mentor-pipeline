@@ -25,6 +25,7 @@ from mentor_pipeline.paraphrases import (
 from mentor_pipeline.topics import (
     TopicsByQuestion,
     load_topics_by_question_from_csv as _load_topics_by_question_from_csv,
+    write_topics_by_question_to_csv as _write_topics_by_question_to_csv,
 )
 from mentor_pipeline.training_data import (
     load_classifier_data as _load_training_classifier_data,
@@ -141,11 +142,8 @@ class MentorPath:
     def get_root_path_video_mentors(self, p: str = None) -> str:
         return self._path_from(os.path.dirname(self.root_path_video_mentors), p)
 
-    def get_sessions_data_path(self) -> str:
-        return os.path.join(self.get_mentor_data(), ".mentor", "sessions.yaml")
-
-    def get_topics_by_question(self) -> str:
-        return self.get_root_path_data("topics_by_question.csv")
+    def get_topics_by_question(self, file_name: str = None) -> str:
+        return self.get_root_path_data(file_name or "topics_by_question.csv")
 
     def get_training_classifier_data(self) -> str:
         return self.get_data_path("classifier_data.csv")
@@ -304,10 +302,11 @@ class MentorPath:
         )
 
     def load_topics_by_question_from_csv(
-        self, allow_file_not_exists=False
+        self, allow_file_not_exists=False, file_name=None
     ) -> TopicsByQuestion:
         return _load_topics_by_question_from_csv(
-            self.get_topics_by_question(), allow_file_not_exists=allow_file_not_exists
+            self.get_topics_by_question(file_name=file_name),
+            allow_file_not_exists=allow_file_not_exists,
         )
 
     def load_training_classifier_data(self) -> pd.DataFrame:
@@ -367,6 +366,11 @@ class MentorPath:
 
     def to_relative_path(self, p: str, mentor_asset_root: MentorAssetRoot) -> str:
         return os.path.relpath(p, self.get_mentor_asset(mentor_asset_root))
+
+    def write_topics_by_question(self, d: TopicsByQuestion, file_name=None) -> None:
+        _write_topics_by_question_to_csv(
+            d, self.get_topics_by_question(file_name=file_name)
+        )
 
     def write_training_classifier_data(self, d: pd.DataFrame) -> None:
         _write_training_classifier_data(d, self.get_training_classifier_data())

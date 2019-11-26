@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 from mentor_pipeline.mentorpath import MentorPath
 from mentor_pipeline.process import (
@@ -12,8 +13,10 @@ from mentor_pipeline.process import (
     utterances_slice_audio,
     utterances_slice_video,
     utterances_to_captions,
+    utterances_to_topics_by_question,
     utterances_to_training_data,
 )
+from mentor_pipeline.topics import TopicsByQuestion
 import mentor_pipeline
 
 
@@ -79,3 +82,11 @@ class Pipeline:
             utterances_w_video_mobile, self.mpath
         )
         self.mpath.write_utterances(utterances_w_video_web)
+
+    def topics_by_question_generate(
+        self, mentors: List[str] = None
+    ) -> TopicsByQuestion:
+        utterances = self.mpath.load_utterances(create_new=False)
+        tbq = utterances_to_topics_by_question(utterances)
+        self.mpath.write_topics_by_question(tbq)
+        return tbq
