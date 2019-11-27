@@ -136,7 +136,7 @@ def prepare_videos_web(utterances: UtteranceMap, mp: MentorPath) -> UtteranceMap
 
 
 def session_to_audio_result_summary_from_yaml(
-    yaml_path: str
+    yaml_path: str,
 ) -> SessionToAudioResultSummary:
     d = yaml_load(yaml_path)
     return SessionToAudioResultSummary(**d)
@@ -519,6 +519,15 @@ def utterances_to_captions(
     )
 
 
+def utterances_to_topics_by_question(utterances: UtteranceMap) -> TopicsByQuestion:
+    topics_by_question = TopicsByQuestion()
+    for u in utterances.utterances():
+        logging.warning(f"this utterance={u}")
+        if u.utteranceType == UtteranceType.ANSWER and u.question:
+            topics_by_question.add_question_topics(u.question, u.topics)
+    return topics_by_question
+
+
 @dataclass
 class Utterances2TrainingDataResult:
     utterances: UtteranceMap = None
@@ -529,7 +538,7 @@ class Utterances2TrainingDataResult:
 
 
 def utterances_to_training_data(
-    utterances: UtteranceMap
+    utterances: UtteranceMap,
 ) -> Utterances2TrainingDataResult:
     utterances_merged = copy_utterances(utterances)
     qpa = QuestionsParaphrasesAnswersBuilder()

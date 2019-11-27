@@ -22,6 +22,12 @@ def main():
         dest="videos_update",
         help="update mentor videos data and session recordings",
     )
+    parser.add_argument(
+        "--topics-by-question-generate",
+        action="store_true",
+        dest="topics_by_question_generate",
+        help="update mentor videos data and session recordings",
+    )
     parser.add_argument("-m", "--mentor", required=True, help="the mentor")
     parser.add_argument("--data", help="the path to the root of all mentors")
     args = parser.parse_args()
@@ -31,6 +37,8 @@ def main():
         p.data_update()
     if args.videos_update:
         p.videos_update()
+    if args.topics_by_question_generate:
+        p.topics_by_question_generate(mentors=[args.mentor])
 
 
 if __name__ == "__main__":

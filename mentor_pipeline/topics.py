@@ -36,9 +36,20 @@ class TopicsByQuestion:
             for (k, v) in self.questionsTopicsById.items()
         }
 
+    def add_question_topics(self, question: str, topics: List[str]) -> None:
+        self.questionsTopicsById[to_question_id(question)] = QuestionTopics(
+            question=question, topics=sorted(topics)
+        )
+
     def find_topics(self, question: str) -> List[str]:
         qt = self.questionsTopicsById.get(to_question_id(question))
         return (qt.topics or []) if qt else []
+
+    def get_question_topics(self) -> List[QuestionTopics]:
+        return [
+            self.questionsTopicsById[qid]
+            for qid in sorted(self.questionsTopicsById.keys())
+        ]
 
     def to_dict(self):
         return asdict(self)
@@ -90,3 +101,19 @@ def load_topics_by_question_from_csv(
             )
     except Exception as root_err:
         logging.warning(f"error parsing {question_topics_csv}: {root_err}")
+
+
+def write_topics_by_question_to_csv(
+    tbq: TopicsByQuestion, question_topics_csv: str
+) -> None:
+    try:
+        os.makedirs(os.path.dirname(question_topics_csv), exist_ok=True)
+        logging.warning(f"write_topics_by_question_to_csv to {question_topics_csv}")
+        with open(question_topics_csv, "w", encoding="utf-8") as f:
+            w = csv.writer(f)
+            w.writerow(["Questions", "Topics"])
+            for qts in tbq.get_question_topics():
+                logging.warning(f"WHAT IS QTS? {qts}")
+                w.writerow([qts.question, "|".join(qts.topics)])
+    except Exception as root_err:
+        logging.warning(f"error writing {question_topics_csv}: {root_err}")
