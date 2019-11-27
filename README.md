@@ -5,7 +5,7 @@ Use these tools to create/update a mentor for Mentorpal.
 
 ### Quick Start
 
-#### Required Setup (session videos and timstamps)
+#### Required Setup (session videos and timestamps)
 TODO: needs to download session videos and timestamp files automatically but for now...
 Download session videos and timestamps and place them under `./data/mentors/{mentor_id}/build/recordings` eg.
 
