@@ -54,7 +54,7 @@ def video_encode_for_mobile(src_file: str, tgt_file: str) -> None:
         "-level",
         "4.0",
         "-loglevel",
-        "quiet"
+        "quiet",
     ]
     ff = ffmpy.FFmpeg(
         inputs={src_file: None}, outputs={tgt_file: tuple(i for i in output_command)}
@@ -114,7 +114,7 @@ def slice_video(
         "-level",
         "4.0",
         "-loglevel",
-        "quiet"
+        "quiet",
     ]
     os.makedirs(os.path.dirname(target_file), exist_ok=True)
     ff = ffmpy.FFmpeg(
