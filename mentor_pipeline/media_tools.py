@@ -37,18 +37,15 @@ def video_encode_for_mobile(src_file: str, tgt_file: str) -> None:
         "-filter:v",
         f"crop={crop}",
         "-y",
-        "-ac",
-        "1",
-        "-q:a",
-        "5",
-        "-c:v",
-        "libx264",
-        "-c:a",
-        "aac",
-        "-strict",
-        "experimental",
-        "-loglevel",
-        "quiet",
+        "-c:v libx264",
+        "-crf 23",
+        "-pix_fmt yuv420p",
+        "-movflags +faststart",
+        "-c:a aac",
+        "-ac 1",
+        "-profile:v main",
+        "-level 4.0",
+        "-loglevel quiet",
     ]
     if tgt_file.endswith(".mp4"):
         output_command.extend(["-acodec", "libmp3lame"])
@@ -86,24 +83,20 @@ def slice_audio(
 def slice_video(
     src_file: str, target_file: str, time_start: float, time_end: float
 ) -> None:
+    # ffmpeg -i INPUT -vf crop={crop} -c:v libx264 -crf 23 -pix_fmt yuv420p -movflags +faststart -c:a aac -ac 1 -profile:v main -level 4.0 OUTPUT.mp4
     output_command = [
         "-y",
-        "-ss",
-        f"{time_start}",
-        "-to",
-        f"{time_end}",
-        "-ac",
-        "1",
-        "-q:a",
-        "5",
-        "-c:v",
-        "libx264",
-        "-c:a",
-        "aac",
-        "-strict",
-        "experimental",
-        "-loglevel",
-        "quiet",
+        f"-ss {time_start}",
+        f"-to {time_end}",
+        "-c:v libx264",
+        "-crf 23",
+        "-pix_fmt yuv420p",
+        "-movflags +faststart",
+        "-c:a aac",
+        "-ac 1",
+        "-profile:v main",
+        "-level 4.0",
+        "-loglevel quiet",
     ]
     if target_file.endswith(".mp4"):
         output_command.extend(["-acodec", "libmp3lame"])
