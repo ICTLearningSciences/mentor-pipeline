@@ -34,21 +34,28 @@ def video_encode_for_mobile(src_file: str, tgt_file: str) -> None:
         )
     os.makedirs(os.path.dirname(tgt_file), exist_ok=True)
     output_command = [
+        "-y",
         "-filter:v",
         f"crop={crop}",
-        "-y",
-        "-c:v libx264",
-        "-crf 23",
-        "-pix_fmt yuv420p",
-        "-movflags +faststart",
-        "-c:a aac",
-        "-ac 1",
-        "-profile:v main",
-        "-level 4.0",
-        "-loglevel quiet",
+        "-c:v",
+        "libx264",
+        "-crf",
+        "23",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
+        "-c:a",
+        "aac",
+        # "-ac",
+        # "1",
+        "-profile:v",
+        "main",
+        "-level",
+        "4.0",
+        "-loglevel",
+        "quiet"
     ]
-    if tgt_file.endswith(".mp4"):
-        output_command.extend(["-acodec", "libmp3lame"])
     ff = ffmpy.FFmpeg(
         inputs={src_file: None}, outputs={tgt_file: tuple(i for i in output_command)}
     )
@@ -86,20 +93,29 @@ def slice_video(
     # ffmpeg -i INPUT -vf crop={crop} -c:v libx264 -crf 23 -pix_fmt yuv420p -movflags +faststart -c:a aac -ac 1 -profile:v main -level 4.0 OUTPUT.mp4
     output_command = [
         "-y",
-        f"-ss {time_start}",
-        f"-to {time_end}",
-        "-c:v libx264",
-        "-crf 23",
-        "-pix_fmt yuv420p",
-        "-movflags +faststart",
-        "-c:a aac",
-        "-ac 1",
-        "-profile:v main",
-        "-level 4.0",
-        "-loglevel quiet",
+        "-ss",
+        f"{time_start}",
+        "-to",
+        f"{time_end}",
+        "-c:v",
+        "libx264",
+        "-crf",
+        "23",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
+        "-c:a",
+        "aac",
+        # "-ac",
+        # "1",
+        "-profile:v",
+        "main",
+        "-level",
+        "4.0",
+        "-loglevel",
+        "quiet"
     ]
-    if target_file.endswith(".mp4"):
-        output_command.extend(["-acodec", "libmp3lame"])
     os.makedirs(os.path.dirname(target_file), exist_ok=True)
     ff = ffmpy.FFmpeg(
         inputs={src_file: None}, outputs={target_file: tuple(i for i in output_command)}
