@@ -1,0 +1,5 @@
+- source: build/recordings/session1/p1-some-questions.mp4
+  target: build/utterance_video/s001p001s00000000e00000100.mp4
+  time_start_secs: 0.00
+  time_end_secs: 1.00
+  

@@ -1,0 +1,10 @@
+utterances:  
+  - mentor: mentor1
+    part: 1
+    question: question 1
+    session: 1
+    sessionTimestamps: build/recordings/session1/p1-some-questions.csv
+    timeStart: 0.00
+    timeEnd: 1.00
+    utteranceType: _ANSWER_
+    utteranceVideo: build/utterance_video/s001p001s00000000e00000100.mp4
