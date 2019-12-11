@@ -1,6 +1,5 @@
 from distutils.dir_util import copy_tree
 import glob
-import logging
 import os
 from shutil import copyfile
 from tempfile import mkdtemp
@@ -85,7 +84,6 @@ def copy_mentor_to_tmp(
 ) -> MentorPath:
     tmp_mentors = mkdtemp()
     mentor_data_root_tgt = os.path.join(tmp_mentors, "data", "mentors")
-    logging.warning(f"mentor_data_root={mentor_data_root}")
     os.makedirs(mentor_data_root_tgt)
     mpath_src = MentorPath(mentor_id=mentor, root_path_data_mentors=mentor_data_root)
     mpath_tgt = MentorPath(
