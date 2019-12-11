@@ -90,7 +90,6 @@ def slice_audio(
 def slice_video(
     src_file: str, target_file: str, time_start: float, time_end: float
 ) -> None:
-    # ffmpeg -i INPUT -vf crop={crop} -c:v libx264 -crf 23 -pix_fmt yuv420p -movflags +faststart -c:a aac -ac 1 -profile:v main -level 4.0 OUTPUT.mp4
     output_command = [
         "-y",
         "-ss",
@@ -107,8 +106,8 @@ def slice_video(
         "+faststart",
         "-c:a",
         "aac",
-        # "-ac",
-        # "1",
+        "-ac",
+        "1",
         "-profile:v",
         "main",
         "-level",
