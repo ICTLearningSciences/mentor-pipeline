@@ -34,24 +34,28 @@ def video_encode_for_mobile(src_file: str, tgt_file: str) -> None:
         )
     os.makedirs(os.path.dirname(tgt_file), exist_ok=True)
     output_command = [
+        "-y",
         "-filter:v",
         f"crop={crop}",
-        "-y",
-        "-ac",
-        "1",
-        "-q:a",
-        "5",
         "-c:v",
         "libx264",
+        "-crf",
+        "23",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
         "-c:a",
         "aac",
-        "-strict",
-        "experimental",
+        "-ac",
+        "1",
+        "-profile:v",
+        "main",
+        "-level",
+        "4.0",
         "-loglevel",
         "quiet",
     ]
-    if tgt_file.endswith(".mp4"):
-        output_command.extend(["-acodec", "libmp3lame"])
     ff = ffmpy.FFmpeg(
         inputs={src_file: None}, outputs={tgt_file: tuple(i for i in output_command)}
     )
@@ -92,21 +96,25 @@ def slice_video(
         f"{time_start}",
         "-to",
         f"{time_end}",
-        "-ac",
-        "1",
-        "-q:a",
-        "5",
         "-c:v",
         "libx264",
+        "-crf",
+        "23",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
         "-c:a",
         "aac",
-        "-strict",
-        "experimental",
+        "-ac",
+        "1",
+        "-profile:v",
+        "main",
+        "-level",
+        "4.0",
         "-loglevel",
         "quiet",
     ]
-    if target_file.endswith(".mp4"):
-        output_command.extend(["-acodec", "libmp3lame"])
     os.makedirs(os.path.dirname(target_file), exist_ok=True)
     ff = ffmpy.FFmpeg(
         inputs={src_file: None}, outputs={target_file: tuple(i for i in output_command)}

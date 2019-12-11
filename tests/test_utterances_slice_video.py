@@ -29,6 +29,13 @@ def test_it_skips_utterances_with_existing_video_and_unchanged_start_and_end_tim
 
 
 @pytest.mark.parametrize(
+    "mentor_root,mentor_id", [(MENTOR_ROOT, "mentor3-encodes-missing-video")]
+)
+def test_it_encodes_missing_video(mentor_root: str, mentor_id: str):
+    _test_utterance_to_video(mentor_root, mentor_id, require_video_to_audio_calls=False)
+
+
+@pytest.mark.parametrize(
     "mentor_root,mentor_id", [(MENTOR_ROOT, "mentor2-skips-existing-video")]
 )
 def test_it_logs_info_for_each_call_to_generate_utterance_video(
