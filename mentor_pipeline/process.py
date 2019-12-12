@@ -5,7 +5,7 @@ import logging
 import os
 import re
 import shutil
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Optional
 
 from ftfy import fix_text
 import pandas as pd
@@ -286,11 +286,19 @@ class _UtteranceTranscriptionCall:
     audio_path: str
 
 
+@dataclass
+class OnDidTranscribe:
+    index: int
+    utterance_id: str
+    transcript: str
+
+
 def update_transcripts(
     utterances: UtteranceMap,
     transcription_service: TranscriptionService,
     mp: MentorPath,
     strip_non_verbal_tokens: bool = True,
+    on_did_transcribe: Optional[Callable[[OnDidTranscribe], None]] = None,
 ) -> UtteranceMap:
     """
     Give sessions data and a root sessions directory,
@@ -300,7 +308,9 @@ def update_transcripts(
     result = copy_utterances(utterances)
     call_list: List[_UtteranceTranscriptionCall] = []
     for u in result.utterances():
-        if u.transcript or u.is_no_transcription_type():
+        if u.transcript:
+            continue  # transcript already set
+        if u.is_no_transcription_type():
             continue  # transcript already set
         audio_path = mp.find_utterance_audio(u)
         if not audio_path:
@@ -323,6 +333,13 @@ def update_transcripts(
             result.set_transcript(
                 call.utterance.get_id(), transcript=text, source_audio=audio_path_rel
             )
+            mp.write_utterances(result)
+            if on_did_transcribe is not None:
+                on_did_transcribe(
+                    OnDidTranscribe(
+                        index=i, utterance_id=call.utterance.get_id(), transcript=text
+                    )
+                )
         except BaseException as err:
             logging.warning(
                 f"failed to transcribe audio for id {u.get_id()} at path {audio_path}: {err}"
@@ -522,7 +539,6 @@ def utterances_to_captions(
 def utterances_to_topics_by_question(utterances: UtteranceMap) -> TopicsByQuestion:
     topics_by_question = TopicsByQuestion()
     for u in utterances.utterances():
-        logging.warning(f"this utterance={u}")
         if u.utteranceType == UtteranceType.ANSWER and u.question:
             topics_by_question.add_question_topics(u.question, u.topics)
     return topics_by_question
