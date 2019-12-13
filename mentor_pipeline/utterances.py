@@ -77,13 +77,13 @@ class Utterance:
             else -1
         )
 
-    def get_id(self):
+    def get_id(self) -> str:
         return _utterance_id(self.session, self.part, self.timeStart, self.timeEnd)
 
-    def is_no_transcription_type(self):
-        return self.utteranceType == UtteranceType.IDLE
+    def is_no_transcription_type(self) -> bool:
+        return bool(self.utteranceType == UtteranceType.IDLE)
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return asdict(self)
 
 

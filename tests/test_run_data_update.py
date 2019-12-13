@@ -43,8 +43,8 @@ def test_it_generates_all_data_files_for_a_mentor(
     mentor_id: str,
 ):
     mpath = copy_mentor_to_tmp(mentor_id, mentor_data_root)
-    mock_transcriptions = MockTranscriptions(mock_init_transcription_service)
-    mock_transcriptions.load_expected_calls(mpath)
+    mock_transcriptions = MockTranscriptions(mpath, mock_init_transcription_service)
+    mock_transcriptions.load_expected_calls()
     MockAudioSlicer(mock_slice_audio, create_dummy_output_files=True)
     MockVideoToAudioConverter(mock_video_to_audio, create_dummy_output_files=True)
     p = Pipeline(mentor_id, mpath.root_path_data_mentors)
