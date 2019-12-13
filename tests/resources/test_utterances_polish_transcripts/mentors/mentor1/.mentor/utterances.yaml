@@ -1,0 +1,11 @@
+utterances:
+  - mentor: mentor1
+    part: 1
+    question: question 1
+    session: 1
+    utteranceAudio: build/utterance_audio/s001p001s00000000e00000100.mp3
+    timeStart: 0.00
+    timeEnd: 1.00
+    transcript: "a period might occur inside a sentence e.g., see! and the sentence may
+    end without the dot!"
+    utteranceType: _ANSWER_

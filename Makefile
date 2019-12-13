@@ -24,6 +24,12 @@ venv-create: virtualenv-installed
 	$(VENV)/bin/pip install --upgrade pip
 	$(VENV)/bin/pip install -r ./requirements.test.txt
 
+NLTK_DATA=$(VENV)/nltk_data
+$(NLTK_DATA):
+	. $(VENV)/bin/activate \
+	&& export NLTK_DATA=${NLTK_DATA} \
+	&& python3 -c "import nltk; nltk.download('punkt', download_dir='$(NLTK_DATA)')" 
+
 virtualenv-installed:
 	$(PROJECT_ROOT)/bin/virtualenv_ensure_installed.sh
 
@@ -32,8 +38,9 @@ format: $(VENV)
 	$(VENV)/bin/black mentor_pipeline
 
 PHONY: test
-test: $(VENV)
-	$(VENV)/bin/py.test -vv $(args)
+test: $(VENV) $(NLTK_DATA)
+	export NLTK_DATA=$(NLTK_DATA) \
+	&& $(VENV)/bin/py.test -vv $(args)
 
 .PHONY: test-format
 test-format: $(VENV)

@@ -8,6 +8,7 @@ import shutil
 from typing import Callable, Dict, List, Optional
 
 from ftfy import fix_text
+from nltk.tokenize.api import TokenizerI
 import pandas as pd
 
 from mentor_pipeline.captions import transcript_to_vtt
@@ -113,6 +114,36 @@ class SessionToAudioResultSummary:
 
     def to_dict(self):
         return asdict(self)
+
+
+SENT_TOKENIZER: Optional[TokenizerI] = None
+
+
+def _get_sentence_tokenizer() -> TokenizerI:
+    global SENT_TOKENIZER
+    if SENT_TOKENIZER is None:
+        import nltk.data
+
+        SENT_TOKENIZER = nltk.data.load("tokenizers/punkt/english.pickle")
+    return SENT_TOKENIZER
+
+
+def _capitalize_sentences(text: str) -> str:
+    tokenizer = _get_sentence_tokenizer()
+    sentences = tokenizer.tokenize(text)
+    sentences = [sent.capitalize() for sent in sentences]
+    return " ".join(sentences)
+
+
+def polish_transcripts(utterances: UtteranceMap, mp: MentorPath) -> UtteranceMap:
+    result = copy_utterances(utterances)
+    for u in result.utterances():
+        if (
+            not u.transcript
+        ):  # should also have maybe a 'transcript_locked' for manually polished
+            continue
+        u.transcript = _capitalize_sentences(u.transcript)
+    return result
 
 
 def prepare_videos_mobile(utterances: UtteranceMap, mp: MentorPath) -> UtteranceMap:

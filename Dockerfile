@@ -9,6 +9,7 @@ RUN apt-get update && \
 ADD requirements.txt /tmp/requirements.txt
 RUN pip3 install -r /tmp/requirements.txt \
     && rm /tmp/requirements.txt
+RUN python3 -c "import nltk; nltk.download('punkt')"
 COPY mentor_pipeline /app/mentor_pipeline
 COPY mentor_pipeline_runner.py /app
 ENV DATA_MOUNT=/app/mounts/

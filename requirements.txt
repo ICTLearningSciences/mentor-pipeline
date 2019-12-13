@@ -5,6 +5,7 @@ ffmpy==0.2.2
 ftfy==5.6
 gdown==3.8.1
 idna==2.8
+nltk==3.4.5
 numpy==1.16.4
 pandas==0.24.2
 pymediainfo==4.0
