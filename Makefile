@@ -113,6 +113,26 @@ data/mentors/%: data/mentors/%/build/recordings docker-image-exists $(WATSON_CRE
 			-e WATSON_PASSWORD=$(WATSON_PASSWORD) \
 			$(DOCKER_IMAGE) --mentor $* --data-update --data=/app/mounts/data/mentors
 
+.PHONY: data/topics_by_question.csv/mentor/%
+data/topics_by_question.csv/mentors/%:
+	docker run \
+			--rm \
+			--name $(DOCKER_CONTAINER) \
+			-v $(PWD)/data:/app/mounts/data \
+			-e WATSON_USERNAME=$(WATSON_USERNAME) \
+			-e WATSON_PASSWORD=$(WATSON_PASSWORD) \
+			$(DOCKER_IMAGE) --mentor $* --topics-by-question-generate --data=/app/mounts/data/mentors
+
+.PHONY: data/transcripts-polish/mentor/%
+data/transcripts-polish/mentors/%:
+	docker run \
+			--rm \
+			--name $(DOCKER_CONTAINER) \
+			-v $(PWD)/data:/app/mounts/data \
+			-e WATSON_USERNAME=$(WATSON_USERNAME) \
+			-e WATSON_PASSWORD=$(WATSON_PASSWORD) \
+			$(DOCKER_IMAGE) --mentor $* --transcripts-polish --data=/app/mounts/data/mentors
+
 .PHONY: data/mentors/%/data/update
 videos/mentors/%: data/mentors/% docker-image-exists 
 	docker run \

@@ -74,22 +74,3 @@ def test_it_generates_all_data_files_for_a_mentor(
     actual_classifier_data = mpath.load_training_classifier_data()
     pd.testing.assert_frame_equal(expected_classifier_data, actual_classifier_data)
     assert_captions_match_expected(mpath)
-    # actual_utterances = mpath.load_utterances()
-    # expected_captions_file_list = glob(
-    #     mpath.get_mentor_data(os.path.join("expected_captions", "*.vtt"))
-    # )
-    # assert len(expected_captions_file_list) > 0
-    # for expected_captions_file in expected_captions_file_list:
-    #     uid = os.path.splitext(os.path.basename(expected_captions_file))[0]
-    #     u = actual_utterances.find_by_id(uid)
-    #     assert isinstance(
-    #         u, Utterance
-    #     ), f"expected to find an utterance with id {uid} in utterances.yaml data"
-    #     assert_utterance_asset_exists(mpath, u, UTTERANCE_CAPTIONS)
-    #     actual_captions_path = mpath.find_utterance_captions(u)
-    #     with open(expected_captions_file, "r") as f_expected, open(
-    #         actual_captions_path, "r"
-    #     ) as f_actual:
-    #         expected_captions = f_expected.read()
-    #         actual_captions = f_actual.read()
-    #         assert expected_captions == actual_captions

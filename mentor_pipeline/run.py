@@ -1,9 +1,10 @@
 import logging
 from typing import List
 
+import mentor_pipeline
 from mentor_pipeline.mentorpath import MentorPath
 from mentor_pipeline.process import (
-    polish_transcripts,
+    transcripts_polish,
     prepare_videos_mobile,
     prepare_videos_web,
     sessions_to_audio,
@@ -18,7 +19,7 @@ from mentor_pipeline.process import (
     utterances_to_training_data,
 )
 from mentor_pipeline.topics import TopicsByQuestion
-import mentor_pipeline
+from mentor_pipeline.utterances import UtteranceMap
 
 
 class Pipeline:
@@ -35,6 +36,17 @@ class Pipeline:
         utterances_new = sync_timestamps(self.mpath)
         print(f"utterances={utterances_new.to_dict()}")
 
+    def _write_all_data_files(self, utterances: UtteranceMap) -> None:
+        captions_result = utterances_to_captions(utterances, self.mpath)
+        td_result = utterances_to_training_data(captions_result.utterances)
+        self.mpath.write_training_questions_paraphrases_answers(
+            td_result.questions_paraphrases_answers
+        )
+        self.mpath.write_training_prompts_utterances(td_result.prompts_utterances)
+        self.mpath.write_training_classifier_data(td_result.classifier_data)
+        self.mpath.write_training_utterance_data(td_result.utterance_data)
+        self.mpath.write_utterances(td_result.utterances)
+
     def data_update(self):
         transcription_service = (
             mentor_pipeline.transcriptions.init_transcription_service()
@@ -47,7 +59,7 @@ class Pipeline:
         utterances_w_transcripts = update_transcripts(
             utterances_w_audio_src, transcription_service, self.mpath
         )
-        utterances_with_transcripts_polished = polish_transcripts(
+        utterances_with_transcripts_polished = transcripts_polish(
             utterances_w_transcripts, self.mpath
         )
         utterances_w_paraphrases = update_paraphrases(
@@ -60,15 +72,14 @@ class Pipeline:
             utterances_w_paraphrases,
             self.mpath.load_topics_by_question_from_csv(allow_file_not_exists=True),
         )
-        captions_result = utterances_to_captions(utterances_w_topics, self.mpath)
-        td_result = utterances_to_training_data(captions_result.utterances)
-        self.mpath.write_training_questions_paraphrases_answers(
-            td_result.questions_paraphrases_answers
+        self._write_all_data_files(utterances_w_topics)
+
+    def transcripts_polish(self):
+        utterances = self.mpath.load_utterances()
+        utterances_with_transcripts_polished = transcripts_polish(
+            utterances, self.mpath
         )
-        self.mpath.write_training_prompts_utterances(td_result.prompts_utterances)
-        self.mpath.write_training_classifier_data(td_result.classifier_data)
-        self.mpath.write_training_utterance_data(td_result.utterance_data)
-        self.mpath.write_utterances(td_result.utterances)
+        self._write_all_data_files(utterances_with_transcripts_polished)
 
     def videos_update(self):
         utterances_init = self.mpath.load_utterances(create_new=False)

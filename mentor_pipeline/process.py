@@ -137,7 +137,7 @@ def _capitalize_sentences(text: str) -> str:
     return " ".join(sentences)
 
 
-def polish_transcripts(utterances: UtteranceMap, mp: MentorPath) -> UtteranceMap:
+def transcripts_polish(utterances: UtteranceMap, mp: MentorPath) -> UtteranceMap:
     result = copy_utterances(utterances)
     for u in result.utterances():
         if (

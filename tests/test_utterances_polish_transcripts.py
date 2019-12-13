@@ -5,7 +5,7 @@ from .helpers import (
     copy_mentor_to_tmp,
     resource_root_mentors_for_test,
 )
-from mentor_pipeline.process import polish_transcripts
+from mentor_pipeline.process import transcripts_polish
 
 MENTOR_DATA_ROOT = resource_root_mentors_for_test(__file__)
 
@@ -18,5 +18,5 @@ def test_it_capitilizes_transcript_sentences(mentor_root: str, mentor_id: str):
 def _test_polish_utterances(mentor_data_root: str, mentor_id: str):
     mpath = copy_mentor_to_tmp(mentor_id, mentor_data_root)
     input_utterances = mpath.load_utterances()
-    actual_utterances = polish_transcripts(input_utterances, mpath)
+    actual_utterances = transcripts_polish(input_utterances, mpath)
     assert_utterances_match_expected(mpath, actual_utterances)

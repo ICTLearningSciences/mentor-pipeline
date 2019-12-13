@@ -17,15 +17,21 @@ def main():
         help="update mentor data from session recordings and timestamp files",
     )
     parser.add_argument(
-        "--videos-update",
-        action="store_true",
-        dest="videos_update",
-        help="update mentor videos data and session recordings",
-    )
-    parser.add_argument(
         "--topics-by-question-generate",
         action="store_true",
         dest="topics_by_question_generate",
+        help="update mentor videos data and session recordings",
+    )
+    parser.add_argument(
+        "--transcripts-polish",
+        action="store_true",
+        dest="transcripts_polish",
+        help="update mentor data polishing all transcripts to capitalize sentences etc.",
+    )
+    parser.add_argument(
+        "--videos-update",
+        action="store_true",
+        dest="videos_update",
         help="update mentor videos data and session recordings",
     )
     parser.add_argument("-m", "--mentor", required=True, help="the mentor")
@@ -35,10 +41,12 @@ def main():
     p = Pipeline(args.mentor, mentor_data)
     if args.data_update:
         p.data_update()
-    if args.videos_update:
-        p.videos_update()
     if args.topics_by_question_generate:
         p.topics_by_question_generate(mentors=[args.mentor])
+    if args.transcripts_polish:
+        p.transcripts_polish()
+    if args.videos_update:
+        p.videos_update()
 
 
 if __name__ == "__main__":
