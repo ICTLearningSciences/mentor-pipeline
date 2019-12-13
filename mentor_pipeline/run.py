@@ -3,6 +3,7 @@ from typing import List
 
 from mentor_pipeline.mentorpath import MentorPath
 from mentor_pipeline.process import (
+    polish_transcripts,
     prepare_videos_mobile,
     prepare_videos_web,
     sessions_to_audio,
@@ -46,8 +47,11 @@ class Pipeline:
         utterances_w_transcripts = update_transcripts(
             utterances_w_audio_src, transcription_service, self.mpath
         )
+        utterances_with_transcripts_polished = polish_transcripts(
+            utterances_w_transcripts, self.mpath
+        )
         utterances_w_paraphrases = update_paraphrases(
-            utterances_w_transcripts,
+            utterances_with_transcripts_polished,
             self.mpath.load_paraphrases_by_question_from_csv(
                 allow_file_not_exists=True
             ),

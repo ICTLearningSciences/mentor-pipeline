@@ -7,5 +7,5 @@ utterances:
     timeStart: 0.00
     timeEnd: 1.00
     transcript: "a period might occur inside a sentence e.g., see! and the sentence may
-    end without the dot!"
+    end without the dot! and it should leave capitalized letters like I and Proper Nouns alone."
     utteranceType: _ANSWER_

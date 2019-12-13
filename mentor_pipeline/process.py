@@ -131,7 +131,9 @@ def _get_sentence_tokenizer() -> TokenizerI:
 def _capitalize_sentences(text: str) -> str:
     tokenizer = _get_sentence_tokenizer()
     sentences = tokenizer.tokenize(text)
-    sentences = [sent.capitalize() for sent in sentences]
+    # DO NOT use str.capitalize() because it will lowercase everything
+    # after the first letter of the sentence, e.g.  "it is I!" => "It is i?"
+    sentences = [sent[0].upper() + sent[1:] for sent in sentences]
     return " ".join(sentences)
 
 
