@@ -13,11 +13,6 @@ VENV=.venv
 $(VENV):
 	$(MAKE) venv-create
 
-# Removes all mentor files from the local file system
-.PHONY clean:
-clean:
-	rm -rf $(VENV)
-
 # Builds the data processing pipeline dockerfile
 .PHONY docker-build:
 docker-build:
@@ -68,6 +63,11 @@ data/mentors/%/clean:
 videos/%/clean:
 	@echo "cleaning videos/$*..."
 	@rm -rf "videos/$*"
+
+# Removes all mentor files from the local file system
+.PHONY clean:
+clean:
+	rm -rf .venv htmlcov .coverage 
 
 
 # Runs a shell inside the data processing pipeline dockerfile

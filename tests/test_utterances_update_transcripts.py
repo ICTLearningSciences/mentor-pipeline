@@ -25,8 +25,8 @@ def test_it_fills_in_transcripts_on_utterance_data(
 
 
 @patch.object(transcriptions, "init_transcription_service")
-@pytest.mark.parametrize("mentor_data_root,mentor_id", [(MENTOR_DATA_ROOT, "mentor1")])
-def test_it_logs_info_for_each_transcription_call(
+@pytest.mark.parametrize("mentor_data_root,mentor_id", [(MENTOR_DATA_ROOT, "mentor2-writes-on-update")])
+def test_it_writes_transcriptions_to_utterances_on_each_update_callback(
     mock_init_transcription_service, mentor_data_root: str, mentor_id: str
 ):
     _test_utterances_update_transcripts(
@@ -52,12 +52,12 @@ def _test_utterances_update_transcripts(
         expected_utterances = utterances_from_yaml(
             mpath.get_mentor_data("expected-utterances.yaml")
         )
-        mock_transcriptions.load_expected_calls()
+        mock_transcriptions.mock_transcribe_result_and_callbacks()
         actual_utterances = update_transcripts(
             input_utterances,
             dummy_transcription_service,
             mpath,
-            on_did_transcribe=None,  # mock_transcriptions.get_on_did_transcribe(),
+            on_update=mock_transcriptions.mock_on_update(),
         )
         mock_transcriptions.expect_calls()
         assert expected_utterances.to_dict() == actual_utterances.to_dict()

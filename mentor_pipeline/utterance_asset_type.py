@@ -52,7 +52,7 @@ class UtteranceAssetType:
             getattr(u, self._utterance_prop_name) if self._utterance_prop_name else None
         )
 
-    def get_utterance_inferred_path(self, u: Utterance) -> Optional[str]:
+    def get_utterance_inferred_path(self, u: Utterance) -> str:
         for p, convert_func in self._infer_path_from_props.items():
             asset_type = _ASSET_TYPE_BY_PROP_NAME.get(p)
             if not asset_type:
@@ -67,7 +67,7 @@ class UtteranceAssetType:
         return (
             self._infer_path_from_utterance(u)
             if self._infer_path_from_utterance
-            else None
+            else ""
         )
 
     def get_default_file_ext(self) -> str:

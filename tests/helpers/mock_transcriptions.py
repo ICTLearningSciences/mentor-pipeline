@@ -1,12 +1,10 @@
 from typing import Callable
-import logging
-
-from unittest.mock import call, Mock
+from unittest.mock import Mock
 
 from mentor_pipeline.mentorpath import MentorPath
-from mentor_pipeline.utils import yaml_load
-from mentor_pipeline.process import OnDidTranscribe
-from mentor_pipeline.utterances import Utterance
+from mentor_pipeline.transcriptions import TranscribeJobsUpdate
+from mentor_pipeline.transcriptions.mock import mock_transcribe_call_fixture_from_yaml, MockTranscriptions as _MockTranscriptions
+from mentor_pipeline.utterance_asset_type import UTTERANCE_AUDIO
 
 
 class MockTranscriptions:
@@ -31,51 +29,36 @@ class MockTranscriptions:
         mock_logging_info: Mock = None,
     ):
         self.mpath = mpath
-        self.mock_service = Mock()
-        self.mock_logging_info = mock_logging_info
-        mock_init_transcription_service.return_value = self.mock_service
+        self.mock_transcriptions = _MockTranscriptions(mock_init_transcription_service, mpath.get_mentor_asset(
+            UTTERANCE_AUDIO.get_mentor_asset_root()
+        ))
+        # self.mock_service = Mock()
+        # self.mock_logging_info = mock_logging_info
+        self.source_file_root_path = mpath.get_mentor_asset(
+            UTTERANCE_AUDIO.get_mentor_asset_root()
+        )
+        # mock_init_transcription_service.return_value = self.mock_service
 
     def expect_calls(self) -> None:
-        self.mock_service.transcribe.assert_has_calls(self.expected_transcribe_calls)
-        if self.mock_logging_info:
-            self.mock_logging_info.assert_has_calls(self.expected_calls_logging_info)
+        self.mock_transcriptions.expect_on_update_called_once_per_fixture_update()
 
-    def get_on_did_transcribe(self) -> Callable[[OnDidTranscribe], None]:
-        # Test after each on_did_transcribe callback
-        # that the latest transcription was written.
-        # This is important in case a large batch of transcriptions
-        # only completes partially.
-        # We don't want to lose the completed transcriptions
-        def on_did_transcribe(cb: OnDidTranscribe):
-            logging.warning(f"on_did_transcribe {cb} called!\n\n\n")
+    def mock_on_update(self) -> Callable[[TranscribeJobsUpdate], None]:
+        i = 0
+
+        _base_on_update = self.mock_transcriptions.mock_on_update()
+
+        def _on_update(update: TranscribeJobsUpdate) -> None:
+            _base_on_update(update)
             utterances = self.mpath.load_utterances()
-            assert cb.utterance_id is not None
-            u = utterances.find_by_id(cb.utterance_id)
-            assert isinstance(u, Utterance)
-            assert u.transcript == cb.transcript
-            assert u.transcript in self.expectected_transcriptions
+            for j in update.result.jobs():
+                u = utterances.find_by_id(j.jobId)
+                assert u.transcript == j.transcript, f"update [{i}] expected utterance {u.get_id()} to have transcript '{j.transcript}' but was '{u.transcript}'"
 
-        return on_did_transcribe
+        return _on_update
 
-    def load_expected_calls(
-        self, mock_transcribe_calls_yaml="mock-transcribe-calls.yaml"
+    def mock_transcribe_result_and_callbacks(
+        self,
+        mock_transcribe_call_yaml="mock-transcribe-call.yaml",
     ) -> None:
-        mock_transcribe_calls = yaml_load(
-            self.mpath.get_mentor_data(mock_transcribe_calls_yaml)
-        )
-        self.expected_transcribe_calls = []
-        self.expected_calls_logging_info = []
-        self.expectected_transcriptions = []
-        expected_transcribe_returns = []
-        for i, call_data in enumerate(mock_transcribe_calls):
-            audio_path = self.mpath.get_mentor_data(call_data.get("audio"))
-            transcript = call_data.get("transcript")
-            self.expected_transcribe_calls.append(call(audio_path))
-            self.expectected_transcriptions.append(transcript)
-            expected_transcribe_returns.append(transcript)
-            self.expected_calls_logging_info.append(
-                call(
-                    f"transcribe [{i + 1}/{len(mock_transcribe_calls)}] audio={audio_path}"
-                )
-            )
-        self.mock_service.transcribe.side_effect = expected_transcribe_returns
+        fixture = mock_transcribe_call_fixture_from_yaml(self.mpath.get_mentor_data(mock_transcribe_call_yaml))
+        self.mock_transcriptions.mock_transcribe_result_and_callbacks(fixture)

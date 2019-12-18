@@ -1,12 +1,19 @@
 import os
+import logging
+from typing import Callable, List, Optional
+from uuid import uuid1
 
 from watson_developer_cloud import SpeechToTextV1
 
-from . import TranscriptionService
-
-"""
-This script communicates with IBM Watson to generate transcripts for mentor audiochunks
-"""
+from . import (
+    copy_shallow,
+    transcribe_requests_to_result,
+    TranscribeBatchResult,
+    TranscribeJobRequest,
+    TranscribeJobStatus,
+    TranscribeJobsUpdate,
+    TranscriptionService,
+)
 
 
 class WatsonTranscriptionService(TranscriptionService):
@@ -30,7 +37,7 @@ class WatsonTranscriptionService(TranscriptionService):
                 {"x-watson-learning-opt-out": "true"}
             )
 
-    def transcribe(self, audio_file: str) -> str:
+    def _transcribe_one(self, audio_file: str) -> str:
         """
         Opens an audio .ogg file and calls the recognize function which transcribes the audio to text. That is stored in the `result` variable.
         The result variable is a dictionary which contains sentences of transcriptions. We cycle through the result variable to get the actual text.
@@ -48,3 +55,33 @@ class WatsonTranscriptionService(TranscriptionService):
                 item["alternatives"][0]["transcript"] for item in result
             )
             return transcript
+
+    def transcribe(
+        self,
+        transcribe_requests: List[TranscribeJobRequest],
+        batch_id: str = "",
+        poll_interval=5,
+        on_update: Optional[Callable[[TranscribeJobsUpdate], None]] = None,
+    ) -> TranscribeBatchResult:
+        batch_id = batch_id or str(uuid1())
+        result = transcribe_requests_to_result(
+            transcribe_requests, initial_status=TranscribeJobStatus.QUEUED
+        )
+        for r in transcribe_requests:
+            result = copy_shallow(result)
+            rid = r.get_fq_id()
+            try:
+                transcript = self._transcribe_one(r.sourceFile)
+                result.update_job(
+                    rid, status=TranscribeJobStatus.SUCCEEDED, transcript=transcript
+                )
+                if on_update:
+                    on_update(TranscribeJobsUpdate(result=result, idsUpdated=[rid]))
+            except Exception as ex:
+                logging.exception(
+                    f"Failed to transcribe {r.sourceFile} with error: {ex}"
+                )
+                result.update_job(rid, status=TranscribeJobStatus.FAILED, error=str(ex))
+                if on_update:
+                    on_update(TranscribeJobsUpdate(result=result, idsUpdated=[rid]))
+        return result

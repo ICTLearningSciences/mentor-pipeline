@@ -8,7 +8,7 @@ from mentor_pipeline.utterances import Utterance
 
 MENTOR_DATA_ROOT = os.path.abspath(
     os.path.join(
-        ".", "tests", "resources", "test_mentorpath_assign_asset_paths", "mentors"
+        ".", "tests", "fixtures", "test_mentorpath_assign_asset_paths", "mentors"
     )
 )
 
