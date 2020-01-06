@@ -1,6 +1,6 @@
 from dataclasses import asdict, dataclass, field
 import math
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 from mentor_pipeline.utils import yaml_load, yaml_write
 
@@ -50,22 +50,22 @@ class UtteranceType:
 
 @dataclass
 class Utterance:
-    errorMessage: str = None
-    mentor: str = None
-    question: str = None
+    errorMessage: str = ""
+    mentor: str = ""
+    question: str = ""
     paraphrases: List[str] = field(default_factory=lambda: [])
     part: int = 1
     session: int = 1
-    sessionAudio: str = None
-    sessionTimestamps: str = None
-    sessionVideo: str = None
+    sessionAudio: str = ""
+    sessionTimestamps: str = ""
+    sessionVideo: str = ""
     timeEnd: float = -1.0
     timeStart: float = -1.0
     topics: List[str] = field(default_factory=lambda: [])
-    transcript: str = None
-    utteranceAudio: str = None
-    utteranceVideo: str = None
-    utteranceType: str = None
+    transcript: str = ""
+    utteranceAudio: str = ""
+    utteranceVideo: str = ""
+    utteranceType: str = ""
 
     def get_duration(self) -> float:
         """
@@ -107,12 +107,12 @@ class UtteranceMap:
         for u in timestampRows:
             self.utterancesById[u.get_id()] = u
 
-    def find_by_id(self, uid) -> Utterance:
+    def find_by_id(self, uid) -> Optional[Utterance]:
         return self.utterancesById.get(uid)
 
     def find_one(
         self, session: int, part: int, time_start: float, time_end: float
-    ) -> Utterance:
+    ) -> Optional[Utterance]:
         uid = _utterance_id(session, part, time_start, time_end)
         return self.utterancesById.get(uid)
 
@@ -122,6 +122,7 @@ class UtteranceMap:
         u = self.utterancesById[uid]
         u.transcript = transcript
         u.utteranceAudio = source_audio
+        return True
 
     def to_dict(self):
         return asdict(self)
@@ -154,7 +155,7 @@ def utterance_map_from_list(utterances: List[Union[Utterance, dict]]) -> Utteran
 def utterances_from_yaml(yml: str) -> UtteranceMap:
     d = yaml_load(yml)
     if "utterances" in d:
-        ulist = [Utterance(**u) for u in d.get("utterances")]
+        ulist = [Utterance(**u) for u in d.get("utterances")]  # type: ignore
         return UtteranceMap(**dict(utterancesById={u.get_id(): u for u in ulist}))
     else:
         return UtteranceMap(**d)

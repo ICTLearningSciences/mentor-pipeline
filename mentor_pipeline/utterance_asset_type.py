@@ -1,6 +1,6 @@
 from enum import Enum
 import os
-from typing import Callable, Dict
+from typing import Callable, Dict, Optional
 
 from mentor_pipeline.utterances import Utterance
 
@@ -30,7 +30,7 @@ class UtteranceAssetType:
         mentor_asset_root: MentorAssetRoot,
         utterance_prop_name: str,
         default_file_ext: str,
-        infer_path_from_props: Dict[str, Callable[[str], str]] = None,
+        infer_path_from_props: Dict[str, Optional[Callable[[str], str]]] = None,
         infer_path_from_utterance: Callable[[Utterance], str] = None,
     ):
         self._name = name
@@ -52,7 +52,7 @@ class UtteranceAssetType:
             getattr(u, self._utterance_prop_name) if self._utterance_prop_name else None
         )
 
-    def get_utterance_inferred_path(self, u: Utterance) -> str:
+    def get_utterance_inferred_path(self, u: Utterance) -> Optional[str]:
         for p, convert_func in self._infer_path_from_props.items():
             asset_type = _ASSET_TYPE_BY_PROP_NAME.get(p)
             if not asset_type:
@@ -130,7 +130,7 @@ UTTERANCE_VIDEO = UtteranceAssetType(
 UTTERANCE_VIDEO_MOBILE = UtteranceAssetType(
     "utteranceVideoMobile",
     MentorAssetRoot.VIDEOS,
-    None,
+    "",
     "mp4",
     infer_path_from_utterance=lambda u: os.path.join("mobile", f"{u.get_id()}.mp4"),
 )
@@ -138,7 +138,7 @@ UTTERANCE_VIDEO_MOBILE = UtteranceAssetType(
 UTTERANCE_VIDEO_WEB = UtteranceAssetType(
     "utteranceVideoWeb",
     MentorAssetRoot.VIDEOS,
-    None,
+    "",
     "mp4",
     infer_path_from_utterance=lambda u: os.path.join("web", f"{u.get_id()}.mp4"),
 )
@@ -146,7 +146,7 @@ UTTERANCE_VIDEO_WEB = UtteranceAssetType(
 UTTERANCE_CAPTIONS = UtteranceAssetType(
     "utteranceCaptions",
     MentorAssetRoot.DATA,
-    None,
+    "",
     "vtt",
     infer_path_from_utterance=lambda u: os.path.join(
         "data", "tracks", f"{u.get_id()}.vtt"

@@ -1,24 +1,18 @@
-node_modules
 __pycache__
-*.pyc
-QuestionAnswerLog.csv
+.DS_Store
 build
 dist
-.DS_Store
-.log
-terraform.tfstate
-.vscode
-*.log
-.venv
+htmlcov
+QuestionAnswerLog.csv
 .coverage
 .coverage.*
-htmlcov
-
-# Secret Config Files
+.log
+.mypy_cache
+.venv
+.vscode
+*.log
+*.pyc
 */secrets/*
-*password.txt
-
-# Mentor Data Files
 */temp
 */build
 */videos

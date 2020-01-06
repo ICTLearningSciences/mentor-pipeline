@@ -47,6 +47,10 @@ class _UtteranceSourceAndTarget:
     target: str
 
 
+def _copyfile(f: str, t: str) -> None:
+    shutil.copyfile(f, t)
+
+
 def _prepare_videos(
     utterances: UtteranceMap,
     mp: MentorPath,
@@ -55,7 +59,7 @@ def _prepare_videos(
     logging_function_name: str,
 ) -> UtteranceMap:
     result_utterances = copy_utterances(utterances)
-    ust_list: List[_UtteranceToAudio] = []
+    ust_list: List[_UtteranceSourceAndTarget] = []
     for u in result_utterances.utterances():
         try:
             mp.find_and_assign_assets(u)
@@ -99,8 +103,8 @@ def _timestr_to_secs(s: str) -> float:
 
 @dataclass
 class SessionToAudio:
-    sessionAudio: str = None
-    sessionVideo: str = None
+    sessionAudio: str = ""
+    sessionVideo: str = ""
     utterances: List[Utterance] = field(default_factory=lambda: [])
 
 
@@ -130,7 +134,7 @@ def prepare_videos_web(utterances: UtteranceMap, mp: MentorPath) -> UtteranceMap
         utterances,
         mp,
         UTTERANCE_VIDEO_WEB,
-        shutil.copyfile,  # for now just copying files for web
+        _copyfile,  # for now just copying files for web
         "prepare_videos_web",
     )
 
@@ -203,6 +207,7 @@ def sessions_to_audio(utterances: UtteranceMap, mp: MentorPath) -> SessionToAudi
 
 def sync_timestamps(mp: MentorPath) -> UtteranceMap:
     utterances_current = mp.load_utterances(create_new=True)
+    assert utterances_current is not None
     utterances_merged = UtteranceMap()
     for ts in mp.find_timestamps():
         try:
@@ -493,8 +498,8 @@ def utterances_slice_video(utterances: UtteranceMap, mp: MentorPath) -> Utteranc
 
 @dataclass
 class Utterances2CaptionsResult:
-    utterances: UtteranceMap = None
-    captions_by_utterance_id: Dict[str, str] = None
+    utterances: UtteranceMap
+    captions_by_utterance_id: Dict[str, str] = field(default_factory=lambda: {})
 
 
 def utterances_to_captions(
@@ -546,11 +551,11 @@ def utterances_to_topics_by_question(utterances: UtteranceMap) -> TopicsByQuesti
 
 @dataclass
 class Utterances2TrainingDataResult:
-    utterances: UtteranceMap = None
-    classifier_data: pd.DataFrame = None
-    questions_paraphrases_answers: pd.DataFrame = None
-    prompts_utterances: pd.DataFrame = None
-    utterance_data: pd.DataFrame = None
+    utterances: UtteranceMap
+    classifier_data: pd.DataFrame
+    questions_paraphrases_answers: pd.DataFrame
+    prompts_utterances: pd.DataFrame
+    utterance_data: pd.DataFrame
 
 
 def utterances_to_training_data(

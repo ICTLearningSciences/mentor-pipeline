@@ -20,15 +20,22 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Test format for python
+          name: Test format
           command: make test-format
   test-lint:
     executor: python
     steps:
       - checkout
       - run:
-          name: Test lint for python
+          name: Test lint
           command: make test-lint
+  test-types:
+    executor: python
+    steps:
+      - checkout
+      - run:
+          name: Test types
+          command: make test-types
   test:
     executor: python
     steps:
@@ -80,6 +87,8 @@ workflows:
           filters: *only-untagged
       - test-lint:
           filters: *only-untagged
+      - test-types:
+        filters: *only-untagged
       - test:
           filters: *only-untagged
       - approve-build-and-push:
@@ -89,6 +98,7 @@ workflows:
             - test
             - test-format
             - test-lint
+            - test-types
       - build-and-push:
           is-release-tag: false
           filters: *only-untagged
@@ -102,6 +112,8 @@ workflows:
           filters: *only-tagged-releases
       - test-lint:
           filters: *only-tagged-releases
+      - test-types:
+        filters: *only-tagged-releases
       - build-and-push:
           is-release-tag: true
           filters: *only-tagged-releases
@@ -109,3 +121,4 @@ workflows:
             - test
             - test-format
             - test-lint
+            - test-types

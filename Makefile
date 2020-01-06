@@ -8,24 +8,20 @@ WATSON_USERNAME?=$(shell if [ -f $(WATSON_CREDENTIALS) ]; then head -n 1 $(WATSO
 WATSON_PASSWORD?=$(shell if [ -f $(WATSON_CREDENTIALS) ]; then tail -n 1 $(WATSON_CREDENTIALS); else echo ""; fi)
 
 
-# Builds the data processing pipeline dockerfile
-.PHONY docker-build:
-docker-build:
-	docker build -t $(DOCKER_IMAGE) .
-
 # virtualenv used for pytest
 VENV=.venv
 $(VENV):
 	$(MAKE) venv-create
 
-.PHONY: venv-create
-venv-create: virtualenv-installed
-	[ -d $(VENV) ] || virtualenv -p python3 $(VENV)
-	$(VENV)/bin/pip install --upgrade pip
-	$(VENV)/bin/pip install -r ./requirements.test.txt
+# Removes all mentor files from the local file system
+.PHONY clean:
+clean:
+	rm -rf $(VENV)
 
-virtualenv-installed:
-	$(PROJECT_ROOT)/bin/virtualenv_ensure_installed.sh
+# Builds the data processing pipeline dockerfile
+.PHONY docker-build:
+docker-build:
+	docker build -t $(DOCKER_IMAGE) .
 
 .PHONY: format
 format: $(VENV)
@@ -35,6 +31,9 @@ PHONY: test
 test: $(VENV)
 	$(VENV)/bin/py.test -vv $(args)
 
+.PHONY: test-all
+test-all: test-format test-lint test-types test
+
 .PHONY: test-format
 test-format: $(VENV)
 	$(VENV)/bin/black --check mentor_pipeline
@@ -43,7 +42,9 @@ test-format: $(VENV)
 test-lint: $(VENV)
 	$(VENV)/bin/flake8 .
 
-test-all: test-format test-lint test
+.PHONY: test-types
+test-types: $(VENV)
+	. $(VENV)/bin/activate && mypy mentor_pipeline
 
 .PHONY: docker-image-exists
 docker-image-exists:
@@ -67,12 +68,6 @@ data/mentors/%/clean:
 videos/%/clean:
 	@echo "cleaning videos/$*..."
 	@rm -rf "videos/$*"
-
-# Removes all mentor files from the local file system
-.PHONY clean:
-clean:
-	@for m in data/mentors/*/*; do $(MAKE) data/mentors/$${m}/clean; done
-	@for m in videos/*/*; do $(MAKE) videos/$${m}/clean; done
 
 
 # Runs a shell inside the data processing pipeline dockerfile
@@ -117,3 +112,12 @@ videos/mentors/%: data/mentors/% docker-image-exists
 			-e WATSON_USERNAME=$(WATSON_USERNAME) \
 			-e WATSON_PASSWORD=$(WATSON_PASSWORD) \
 			$(DOCKER_IMAGE) --mentor $* --videos-update --data=/app/mounts/data/mentors
+
+.PHONY: venv-create
+venv-create: virtualenv-installed
+	[ -d $(VENV) ] || virtualenv -p python3 $(VENV)
+	$(VENV)/bin/pip install --upgrade pip
+	$(VENV)/bin/pip install -r ./requirements.test.txt
+
+virtualenv-installed:
+	$(PROJECT_ROOT)/bin/virtualenv_ensure_installed.sh
