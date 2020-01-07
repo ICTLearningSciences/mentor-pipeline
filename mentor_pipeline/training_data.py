@@ -20,10 +20,10 @@ COLS_UTTERANCE_DATA: List[str] = ["ID", "utterance", "situation"]
 @dataclass
 class QuestionsParaphrasesAnswersRow:
     answer: str = ""
-    helpers: str = None
+    helpers: str = ""
     mentor_id: str = ""
     question: str = ""
-    topics: List[str] = None
+    topics: List[str] = field(default_factory=lambda: [])
 
     def to_row(self) -> List[str]:
         return [
@@ -39,8 +39,8 @@ class QuestionsParaphrasesAnswersRow:
 class ClassifierDataRow:
     ID: str = ""
     question: str = ""
-    paraphrases: List[str] = None
-    topics: List[str] = None
+    paraphrases: List[str] = field(default_factory=lambda: [])
+    topics: List[str] = field(default_factory=lambda: [])
     text: str = ""
 
     def to_row(self) -> List[str]:
@@ -58,8 +58,8 @@ class ClassifierDataBuilder:
         id: str = "",
         question: str = "",
         text: str = "",
-        topics: List[str] = None,
-        paraphrases: List[str] = None,
+        topics: List[str] = field(default_factory=lambda: []),
+        paraphrases: List[str] = field(default_factory=lambda: []),
     ) -> None:
         self.data.append(  # pylint: disable=no-member
             ClassifierDataRow(
@@ -101,7 +101,7 @@ class QuestionsParaphrasesAnswersBuilder:
 @dataclass
 class PromptsUtterancesRow:
     mentor_id: str = ""
-    situation: str = None
+    situation: str = ""
     utterance: str = ""
 
     def to_row(self) -> List[str]:

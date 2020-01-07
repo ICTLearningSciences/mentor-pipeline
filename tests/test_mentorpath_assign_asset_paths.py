@@ -63,7 +63,7 @@ def test_it_does_not_assign_session_timestamps_when_missing(
         Utterance(sessionAudio="build/recordings/session1/p1-some-questions.mp3")
     )
     assert "build/recordings/session1/p1-some-questions.mp3" == u1.sessionAudio
-    assert u1.sessionTimestamps is None
+    assert bool(u1.sessionTimestamps) is False
     assert "build/recordings/session1/p1-some-questions.mp4" == u1.sessionVideo
 
 
@@ -79,7 +79,7 @@ def test_it_does_not_assign_session_video_when_missing(
     )
     assert "build/recordings/session1/p1-some-questions.mp3" == u1.sessionAudio
     assert "build/recordings/session1/p1-some-questions.csv" == u1.sessionTimestamps
-    assert u1.sessionVideo is None
+    assert bool(u1.sessionVideo) is False
 
 
 @pytest.mark.parametrize(
@@ -92,6 +92,6 @@ def test_it_does_not_assign_session_audio_when_missing(
     u1 = mpath.find_and_assign_assets(
         Utterance(sessionVideo="build/recordings/session1/p1-some-questions.mp4")
     )
-    assert u1.sessionAudio is None
+    assert bool(u1.sessionAudio) is False
     assert "build/recordings/session1/p1-some-questions.csv" == u1.sessionTimestamps
     assert "build/recordings/session1/p1-some-questions.mp4" == u1.sessionVideo

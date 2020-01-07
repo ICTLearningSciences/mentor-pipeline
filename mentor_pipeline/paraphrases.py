@@ -74,23 +74,17 @@ def load_paraphrases_by_question_from_csv(
             raise Exception(
                 f"expected paraphrases_by_question csv file at {question_paraphrases_csv} (or pass allow_file_not_exists=True)"
             )
-
-    try:
-        with open(question_paraphrases_csv, "r", encoding="utf-8") as f:
-            r = csv.reader(f)
-            xlist = [
-                QuestionParaphrases(
-                    question=x[0], paraphrases=[p for p in x[1:] if p]
-                )  # topic list is delimited with |
-                for i, x in enumerate(r)
-                if i != 0 and len(x) >= 2  # skip header row and trailing/empty
-            ]
-            return ParaphrasesByQuestion(
-                **dict(
-                    questionParaphrasesById={
-                        to_question_id(x.question): x for x in xlist
-                    }
-                )
+    with open(question_paraphrases_csv, "r", encoding="utf-8") as f:
+        r = csv.reader(f)
+        xlist = [
+            QuestionParaphrases(
+                question=x[0], paraphrases=[p for p in x[1:] if p]
+            )  # topic list is delimited with |
+            for i, x in enumerate(r)
+            if i != 0 and len(x) >= 2  # skip header row and trailing/empty
+        ]
+        return ParaphrasesByQuestion(
+            **dict(
+                questionParaphrasesById={to_question_id(x.question): x for x in xlist}
             )
-    except Exception as root_err:
-        logging.warning(f"error parsing {question_paraphrases_csv}: {root_err}")
+        )

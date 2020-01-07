@@ -21,9 +21,6 @@ import mentor_pipeline
 
 
 class Pipeline:
-
-    mpath: MentorPath = None
-
     def __init__(self, mentor: str, mentor_data_path: str):
         self.mpath = MentorPath(
             mentor_id=mentor, root_path_data_mentors=mentor_data_path
@@ -87,6 +84,7 @@ class Pipeline:
         self, mentors: List[str] = None
     ) -> TopicsByQuestion:
         utterances = self.mpath.load_utterances(create_new=False)
+        assert utterances is not None
         tbq = utterances_to_topics_by_question(utterances)
         self.mpath.write_topics_by_question(tbq)
         return tbq

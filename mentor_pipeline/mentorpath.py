@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from glob import glob
 import os
 import re
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import pandas as pd
 
@@ -56,7 +56,7 @@ class SessionPartFile:
 class MentorPath:
     mentor_id: str
     root_path_data_mentors: str
-    root_path_video_mentors: str = None
+    root_path_video_mentors: str = ""
 
     def __post_init__(self):
         if not self.root_path_video_mentors:
@@ -71,7 +71,7 @@ class MentorPath:
             test_path = self.get_mentor_data(re.sub(f"{s}$", r, base_path))
             if os.path.isfile(test_path):
                 return test_path
-        return None
+        return ""
 
     def _find_session_part_files(self, glob_path: str) -> List[SessionPartFile]:
         result: List[SessionPartFile] = []
@@ -160,7 +160,7 @@ class MentorPath:
     def get_utterances_data_path(self) -> str:
         return os.path.join(self.get_mentor_data(), ".mentor", "utterances.yaml")
 
-    def find_and_assign_assets(self, utterance: Utterance) -> None:
+    def find_and_assign_assets(self, utterance: Utterance) -> Utterance:
         t = self.find_asset(utterance, SESSION_TIMESTAMPS)
         utterance.sessionTimestamps = (
             self.to_relative_path(t, SESSION_TIMESTAMPS.get_mentor_asset_root())
@@ -205,7 +205,7 @@ class MentorPath:
             return self.get_mentor_asset(
                 asset_type.get_mentor_asset_root(), inferred_path
             )
-        return None
+        return ""
 
     def find_first_existing_asset(
         self, utterance: Utterance, asset_types: List[UtteranceAssetType]
@@ -214,7 +214,7 @@ class MentorPath:
             a_path = self.find_asset(utterance, a, return_non_existing_paths=False)
             if a_path:
                 return a_path
-        return None
+        return ""
 
     def find_session_audio(
         self, utterance: Utterance, return_non_existing_paths=False
@@ -226,7 +226,7 @@ class MentorPath:
         )
 
     def find_session_timestamps(
-        self, utterance: Utterance = None, return_non_existing_paths=False
+        self, utterance: Utterance, return_non_existing_paths=False
     ) -> str:
         return self.find_asset(
             utterance,
@@ -235,7 +235,7 @@ class MentorPath:
         )
 
     def find_session_video(
-        self, utterance: Utterance = None, return_non_existing_paths=False
+        self, utterance: Utterance, return_non_existing_paths=False
     ) -> str:
         return self.find_asset(
             utterance,
@@ -249,7 +249,7 @@ class MentorPath:
         )
 
     def find_utterance_audio(
-        self, utterance: Utterance = None, return_non_existing_paths=False
+        self, utterance: Utterance, return_non_existing_paths=False
     ) -> str:
         return self.find_asset(
             utterance,
@@ -258,7 +258,7 @@ class MentorPath:
         )
 
     def find_utterance_captions(
-        self, utterance: Utterance = None, return_non_existing_paths=False
+        self, utterance: Utterance, return_non_existing_paths=False
     ) -> str:
         return self.find_asset(
             utterance,
@@ -267,7 +267,7 @@ class MentorPath:
         )
 
     def find_utterance_video(
-        self, utterance: Utterance = None, return_non_existing_paths=False
+        self, utterance: Utterance, return_non_existing_paths=False
     ) -> str:
         return self.find_asset(
             utterance,
@@ -276,7 +276,7 @@ class MentorPath:
         )
 
     def find_utterance_video_mobile(
-        self, utterance: Utterance = None, return_non_existing_paths=False
+        self, utterance: Utterance, return_non_existing_paths=False
     ) -> str:
         return self.find_asset(
             utterance,
@@ -285,7 +285,7 @@ class MentorPath:
         )
 
     def find_utterance_video_web(
-        self, utterance: Utterance = None, return_non_existing_paths=False
+        self, utterance: Utterance, return_non_existing_paths=False
     ) -> str:
         return self.find_asset(
             utterance,
@@ -323,7 +323,7 @@ class MentorPath:
     def load_training_utterance_data(self) -> pd.DataFrame:
         return _load_training_utterance_data(self.get_training_utterance_data())
 
-    def load_utterances(self, create_new=False) -> UtteranceMap:
+    def load_utterances(self, create_new=False) -> Optional[UtteranceMap]:
         data_path = self.get_utterances_data_path()
         if not os.path.isfile(data_path):
             return UtteranceMap() if create_new else None

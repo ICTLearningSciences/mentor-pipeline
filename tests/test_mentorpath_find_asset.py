@@ -123,32 +123,32 @@ def test_it_finds_existing_assets_that_whose_path_can_be_inferred(
         (
             dict(sessionTimestamps="build/recordings/session1/p001-some-questions.csv"),
             SESSION_AUDIO,
-            None,
+            "",
         ),
         (
             dict(sessionVideo="build/recordings/session1/p001-some-questions.mp4"),
             SESSION_AUDIO,
-            None,
+            "",
         ),
         (
             dict(sessionVideo="build/recordings/session1/p001-some-questions.mp4"),
             SESSION_TIMESTAMPS,
-            None,
+            "",
         ),
         (
             dict(sessionAudio="build/recordings/session1/p001-some-questions.mp3"),
             SESSION_TIMESTAMPS,
-            None,
+            "",
         ),
         (
             dict(sessionAudio="build/recordings/session1/p001-some-questions.mp3"),
             SESSION_VIDEO,
-            None,
+            "",
         ),
         (
             dict(sessionTimestamps="build/recordings/session1/p001-some-questions.mp3"),
             SESSION_VIDEO,
-            None,
+            "",
         ),
     ],
 )
@@ -302,6 +302,6 @@ def _test_it_finds(
     expected_path = (
         os.path.join(expected_base_path, expected_rel_path)
         if expected_rel_path
-        else None
+        else ""
     )
     assert expected_path == actual_path

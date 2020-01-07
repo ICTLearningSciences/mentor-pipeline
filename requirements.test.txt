@@ -2,6 +2,7 @@
 black==19.3b0
 callee==0.3
 flake8==3.7.7
+mypy==v0.761
 pytest==5.2.0
 pytest-mock==1.11.0
 pytest-cov==2.7.1

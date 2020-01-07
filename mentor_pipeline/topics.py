@@ -83,24 +83,18 @@ def load_topics_by_question_from_csv(
             raise Exception(
                 f"expected topics_by_question csv file at {question_topics_csv} (or pass allow_file_not_exists=True)"
             )
-
-    try:
-        with open(question_topics_csv, "r", encoding="utf-8") as f:
-            r = csv.reader(f)
-            xlist = [
-                QuestionTopics(
-                    question=x[0], topics=x[1].split("|")
-                )  # topic list is delimited with |
-                for i, x in enumerate(r)
-                if i != 0 and len(x) >= 2  # skip header row and trailing/empty
-            ]
-            return TopicsByQuestion(
-                **dict(
-                    questionsTopicsById={to_question_id(x.question): x for x in xlist}
-                )
-            )
-    except Exception as root_err:
-        logging.warning(f"error parsing {question_topics_csv}: {root_err}")
+    with open(question_topics_csv, "r", encoding="utf-8") as f:
+        r = csv.reader(f)
+        xlist = [
+            QuestionTopics(
+                question=x[0], topics=x[1].split("|")
+            )  # topic list is delimited with |
+            for i, x in enumerate(r)
+            if i != 0 and len(x) >= 2  # skip header row and trailing/empty
+        ]
+        return TopicsByQuestion(
+            **dict(questionsTopicsById={to_question_id(x.question): x for x in xlist})
+        )
 
 
 def write_topics_by_question_to_csv(
