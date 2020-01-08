@@ -139,8 +139,11 @@ class AWSTranscriptionService:
         result = TranscribeBatchResult(
             transcribeJobsById={r.get_fq_id(): r.to_job() for r in transcribe_requests}
         )
-        for r in transcribe_requests:
+        for i, r in enumerate(transcribe_requests):
             item_s3_path = self.get_s3_path(r.sourceFile, r.get_fq_id())
+            logging.info(
+                f"transcribe [{i + 1}/{len(transcribe_requests)}] uploading audio to s3 {item_s3_path}"
+            )
             self.s3_client.upload_file(
                 r.sourceFile,
                 self.s3_bucket,
@@ -182,5 +185,17 @@ class AWSTranscriptionService:
                     if result.update_job(jid, status=jstatus, transcript=transcript):
                         idsUpdated.append(jid)
                 except Exception as ex:
-                    logging.exception(f"failed to handle update  for {ju}: {ex}")
+                    logging.exception(f"failed to handle update for {ju}: {ex}")
+            if on_update:
+                assert on_update is not None
+                try:
+                    on_update(
+                        TranscribeJobsUpdate(result=result, idsUpdated=idsUpdated)
+                    )
+                    summary = result.summary()
+                    logging.info(
+                        f"transcribe [{summary.get_count_completed()}/{len(transcribe_requests)}] completed with {summary.get_count(TranscribeJobStatus.SUCCEEDED)} succeeds and {summary.get_count(TranscribeJobStatus.FAILED)} failures"
+                    )
+                except Exception as ex:
+                    logging.exception(f"update handler raise exception: {ex}")
         return result

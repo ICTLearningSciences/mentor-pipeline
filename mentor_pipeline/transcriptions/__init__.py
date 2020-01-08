@@ -4,7 +4,7 @@ import enum
 from importlib import import_module
 
 import os
-from typing import Any, Callable, Dict, Iterable, List, Optional
+from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 
 import pytest
 
@@ -93,6 +93,34 @@ class TranscribeJobRequest:
 
 
 @dataclass
+class TranscribeBatchResultSummary:
+    jobCountsByStatus: Dict[TranscribeJobStatus, int] = field(
+        default_factory=lambda: {}
+    )
+
+    def get_count(
+        self, statuses: Union[TranscribeJobStatus, Iterable[TranscribeJobStatus]]
+    ) -> int:
+        if isinstance(statuses, TranscribeJobStatus):
+            return self.jobCountsByStatus.get(statuses, 0)
+        n = 0
+        assert isinstance(statuses, Iterable)
+        for s in statuses:
+            n = n + self.get_count(s)
+        return n
+
+    def get_count_completed(self) -> int:
+        return self.get_count(
+            [TranscribeJobStatus.SUCCEEDED, TranscribeJobStatus.FAILED]
+        )
+
+    def increment(self, status: TranscribeJobStatus) -> int:
+        n = self.get_count(status) + 1
+        self.jobCountsByStatus[status] = n
+        return n
+
+
+@dataclass
 class TranscribeBatchResult:
     transcribeJobsById: Dict[str, TranscribeJob] = field(default_factory=lambda: {})
 
@@ -120,6 +148,12 @@ class TranscribeBatchResult:
 
     def jobs(self) -> Iterable[TranscribeJob]:
         return self.transcribeJobsById.values()
+
+    def summary(self) -> TranscribeBatchResultSummary:
+        result = TranscribeBatchResultSummary()
+        for j in self.jobs():
+            result.increment(j.status)
+        return result
 
     def update_job(
         self,
