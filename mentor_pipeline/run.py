@@ -33,9 +33,7 @@ class Pipeline:
         print(f"utterances={utterances_new.to_dict()}")
 
     def data_update(self):
-        transcription_service = (
-            transcribe.init_transcription_service()
-        )
+        transcription_service = transcribe.init_transcription_service()
         utterances_synced = sync_timestamps(self.mpath)
         s2a_result = sessions_to_audio(utterances_synced, self.mpath)
         utterances_w_audio_src = utterances_slice_audio(
