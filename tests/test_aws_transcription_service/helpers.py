@@ -5,7 +5,11 @@ from typing import Any, Dict, List, Tuple
 from unittest.mock import call, Mock
 from uuid import uuid1
 
-from mentor_pipeline.transcriptions import TranscribeBatchResult, TranscribeJobRequest
+from mentor_pipeline.transcriptions import (
+    TranscribeBatchResult,
+    TranscribeJobRequest,
+    TranscribeJobsUpdate,
+)
 from mentor_pipeline.transcriptions.aws import AWSTranscriptionService
 
 from tests.helpers import Bunch
@@ -41,6 +45,7 @@ class TranscribeTestFixture:
     requests: List[TranscribeJobRequest] = field(default_factory=lambda: [])
     get_job_calls: List[AwsTranscribeGetJobCall] = field(default_factory=lambda: [])
     list_jobs_calls: List[AwsTranscribeListJobsCall] = field(default_factory=lambda: [])
+    expected_on_update_calls: List[TranscribeJobsUpdate] = field(default_factory=lambda: [])
     expected_result: TranscribeBatchResult = field(
         default_factory=lambda: TranscribeBatchResult()
     )
@@ -139,3 +144,6 @@ def run_transcribe_test(mock_boto3_client, fixture: TranscribeTestFixture):
             expected_start_transcription_job_calls
         )
         assert result.to_dict() == fixture.expected_result.to_dict()
+        if fixture.expected_on_update_calls:
+            expected_on_update_calls = [call(u) for u in fixture.expected_on_update_calls]
+            spy_on_update.assert_has_calls(expected_on_update_calls)

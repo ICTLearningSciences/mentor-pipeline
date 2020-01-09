@@ -186,15 +186,17 @@ class AWSTranscriptionService:
                         idsUpdated.append(jid)
                 except Exception as ex:
                     logging.exception(f"failed to handle update for {ju}: {ex}")
-            if on_update:
+            summary = result.summary()
+            logging.info(
+                f"transcribe [{summary.get_count_completed()}/{len(transcribe_requests)}] completed. Statuses [SUCCEEDED: {summary.get_count(TranscribeJobStatus.SUCCEEDED)}, FAILED: {summary.get_count(TranscribeJobStatus.FAILED)}, QUEUED: {summary.get_count(TranscribeJobStatus.QUEUED)}, IN_PROGRESS: {summary.get_count(TranscribeJobStatus.IN_PROGRESS)}]."
+            )
+            if on_update and len(idsUpdated) > 0:
                 assert on_update is not None
                 try:
                     on_update(
-                        TranscribeJobsUpdate(result=result, idsUpdated=idsUpdated)
-                    )
-                    summary = result.summary()
-                    logging.info(
-                        f"transcribe [{summary.get_count_completed()}/{len(transcribe_requests)}] completed with {summary.get_count(TranscribeJobStatus.SUCCEEDED)} succeeds and {summary.get_count(TranscribeJobStatus.FAILED)} failures"
+                        TranscribeJobsUpdate(
+                            result=result, idsUpdated=sorted(idsUpdated)
+                        )
                     )
                 except Exception as ex:
                     logging.exception(f"update handler raise exception: {ex}")

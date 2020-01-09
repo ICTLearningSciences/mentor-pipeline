@@ -193,11 +193,8 @@ class TranscribeJobsUpdate:
     idsUpdated: List[str] = field(default_factory=lambda: [])
 
     def __post_init__(self):
-        self.result = (
-            self.result
-            if isinstance(self.result, TranscribeBatchResult)
-            else TranscribeBatchResult(**self.result)
-        )
+        if isinstance(self.result, dict):
+            self.result = TranscribeBatchResult(**self.result)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
