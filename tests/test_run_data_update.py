@@ -30,7 +30,7 @@ MENTOR_DATA_ROOT = resource_root_mentors_for_test(__file__)
 
 @patch("mentor_pipeline.media_tools.video_to_audio")
 @patch("mentor_pipeline.media_tools.slice_audio")
-@patch("mentor_pipeline.transcriptions.init_transcription_service")
+@patch("transcribe.init_transcription_service")
 @pytest.mark.parametrize(
     "mentor_data_root,mentor_id",
     [(MENTOR_DATA_ROOT, "mentor-generates-all-data-files")],

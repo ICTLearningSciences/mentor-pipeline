@@ -22,7 +22,7 @@ from mentor_pipeline.training_data import (
     PromptsUtterancesBuilder,
     UtteranceDataBuilder,
 )
-from mentor_pipeline.transcriptions import (
+from transcribe import (
     TranscribeJob,
     TranscribeJobRequest,
     TranscribeJobStatus,

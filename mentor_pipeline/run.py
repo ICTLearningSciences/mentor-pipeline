@@ -1,6 +1,8 @@
 import logging
 from typing import List
 
+import transcribe
+
 from mentor_pipeline.mentorpath import MentorPath
 from mentor_pipeline.process import (
     prepare_videos_mobile,
@@ -17,7 +19,6 @@ from mentor_pipeline.process import (
     utterances_to_training_data,
 )
 from mentor_pipeline.topics import TopicsByQuestion
-import mentor_pipeline
 
 
 class Pipeline:
@@ -33,7 +34,7 @@ class Pipeline:
 
     def data_update(self):
         transcription_service = (
-            mentor_pipeline.transcriptions.init_transcription_service()
+            transcribe.init_transcription_service()
         )
         utterances_synced = sync_timestamps(self.mpath)
         s2a_result = sessions_to_audio(utterances_synced, self.mpath)

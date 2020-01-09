@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 
 from mentor_pipeline.process import update_transcripts
-from mentor_pipeline import transcriptions
+import transcribe
 from mentor_pipeline.utterances import utterances_from_yaml
 
 from .helpers import (
@@ -14,7 +14,7 @@ from .helpers import (
 MENTOR_DATA_ROOT = resource_root_mentors_for_test(__file__)
 
 
-@patch.object(transcriptions, "init_transcription_service")
+@patch.object(transcribe, "init_transcription_service")
 @pytest.mark.parametrize("mentor_data_root,mentor_id", [(MENTOR_DATA_ROOT, "mentor1")])
 def test_it_fills_in_transcripts_on_utterance_data(
     mock_init_transcription_service, mentor_data_root: str, mentor_id: str
@@ -24,7 +24,7 @@ def test_it_fills_in_transcripts_on_utterance_data(
     )
 
 
-@patch.object(transcriptions, "init_transcription_service")
+@patch.object(transcribe, "init_transcription_service")
 @pytest.mark.parametrize("mentor_data_root,mentor_id", [(MENTOR_DATA_ROOT, "mentor2-writes-on-update")])
 def test_it_writes_transcriptions_to_utterances_on_each_update_callback(
     mock_init_transcription_service, mentor_data_root: str, mentor_id: str

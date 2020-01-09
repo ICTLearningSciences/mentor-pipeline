@@ -2,8 +2,8 @@ from typing import Callable
 from unittest.mock import Mock
 
 from mentor_pipeline.mentorpath import MentorPath
-from mentor_pipeline.transcriptions import TranscribeJobsUpdate
-from mentor_pipeline.transcriptions.mock import mock_transcribe_call_fixture_from_yaml, MockTranscriptions as _MockTranscriptions
+from transcribe import TranscribeJobsUpdate
+from transcribe.mock import mock_transcribe_call_fixture_from_yaml, MockTranscriptions as _MockTranscriptions
 from mentor_pipeline.utterance_asset_type import UTTERANCE_AUDIO
 
 
