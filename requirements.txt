@@ -1,6 +1,3 @@
-awscli==1.16.306
-boto3==1.10.42
-boto3_type_annotations==0.3.1
 certifi==2019.6.16
 chardet==3.0.4
 dataclasses==0.6
@@ -17,6 +14,4 @@ PyYAML==5.1.2
 requests==2.22.0
 urllib3==1.25.3
 uuid==1.30
-watson-developer-cloud==2.10.1
-git+https://github.com/ictlearningsciences/py-transcribe.git@1.0.0-alpha.3#egg=transcribe
-
+transcribe_aws @ git+https://github.com/ictlearningsciences/py-transcribe-aws.git@1.0.0-alpha.4#egg=transcribe_aws
