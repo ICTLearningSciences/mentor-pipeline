@@ -338,7 +338,6 @@ def update_transcripts(
     returning an updated copy of the sessions data with transcriptions populated.
     """
     result = copy_utterances(utterances)
-    batch_id = batch_id or str(uuid1())
     transcribe_requests: List[TranscribeJobRequest] = []
     for u in result.utterances():
         if u.transcript and not force_update:
@@ -351,7 +350,7 @@ def update_transcripts(
             continue
         transcribe_requests.append(
             TranscribeJobRequest(
-                batchId=batch_id, jobId=u.get_id(), sourceFile=audio_path
+                jobId=u.get_id(), sourceFile=audio_path
             )
         )
 
@@ -360,8 +359,9 @@ def update_transcripts(
         if on_update:
             on_update(u)
 
+    batch_id = batch_id or str(uuid1())
     transcribe_result = transcription_service.transcribe(
-        transcribe_requests, on_update=_on_update
+        transcribe_requests, on_update=_on_update, batch_id=batch_id
     )
     result = _write_transcripts_to_utterances(transcribe_result.jobs(), utterances, mp)
     return result
