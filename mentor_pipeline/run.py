@@ -32,7 +32,7 @@ class Pipeline:
         utterances_new = sync_timestamps(self.mpath)
         print(f"utterances={utterances_new.to_dict()}")
 
-    def data_update(self):
+    def data_update(self, force_update_transcripts: bool = False):
         transcription_service = transcribe.init_transcription_service()
         utterances_synced = sync_timestamps(self.mpath)
         s2a_result = sessions_to_audio(utterances_synced, self.mpath)
@@ -40,7 +40,10 @@ class Pipeline:
             s2a_result.utterances, self.mpath
         )
         utterances_w_transcripts = update_transcripts(
-            utterances_w_audio_src, transcription_service, self.mpath
+            utterances_w_audio_src,
+            transcription_service,
+            self.mpath,
+            force_update=force_update_transcripts,
         )
         utterances_w_paraphrases = update_paraphrases(
             utterances_w_transcripts,

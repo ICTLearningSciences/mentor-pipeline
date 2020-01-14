@@ -1,0 +1,32 @@
+utterances:
+  - mentor: mentor3-skips-utterances-with-exising-transcripts
+    paraphrases:
+      - First, let me ask
+      - For starters...?
+    part: 1
+    question: question 1
+    session: 1
+    sessionAudio: build/recordings/session1/p001-questions.mp3
+    sessionTimestamps: build/recordings/session1/p001-questions.csv
+    sessionVideo: build/recordings/session1/p001-questions.mp4
+    timeStart: 0.00
+    timeEnd: 1.00
+    transcript: mentor answer to question 1
+    topics: ["Background"]
+    utteranceAudio: build/utterance_audio/s001p001s00000000e00000100.mp3
+    utteranceType: _ANSWER_
+  - mentor: mentor3-skips-utterances-with-exising-transcripts
+    paraphrases:
+      - Another thing...
+    part: 1
+    question: question 2 diff
+    session: 1
+    sessionAudio: build/recordings/session1/p001-questions.mp3
+    sessionTimestamps: build/recordings/session1/p001-questions.csv
+    sessionVideo: build/recordings/session1/p001-questions.mp4
+    timeStart: 2.12
+    timeEnd: 4.78
+    topics: ["Background", "InterestingFacts"]
+    utteranceAudio: build/utterance_audio/s001p001s00000212e00000478.mp3
+    utteranceType: _ANSWER_
+  

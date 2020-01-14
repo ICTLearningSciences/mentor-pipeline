@@ -35,12 +35,76 @@ MENTOR_DATA_ROOT = resource_root_mentors_for_test(__file__)
     "mentor_data_root,mentor_id",
     [(MENTOR_DATA_ROOT, "mentor-generates-all-data-files")],
 )
-def test_it_generates_all_data_files_for_a_mentor(
+def test_run_data_update_generates_all_data_files_for_a_mentor(
     mock_init_transcription_service,
     mock_slice_audio,
     mock_video_to_audio,
     mentor_data_root: str,
     mentor_id: str,
+):
+    _test_run_data_update(
+        mock_init_transcription_service,
+        mock_slice_audio,
+        mock_video_to_audio,
+        mentor_data_root,
+        mentor_id,
+    )
+
+
+@patch("mentor_pipeline.media_tools.video_to_audio")
+@patch("mentor_pipeline.media_tools.slice_audio")
+@patch("transcribe.init_transcription_service")
+@pytest.mark.parametrize(
+    "mentor_data_root,mentor_id",
+    [(MENTOR_DATA_ROOT, "mentor2-force-updates-transcripts")],
+)
+def test_run_data_update_force_updates_transcripts_when_flag_set(
+    mock_init_transcription_service,
+    mock_slice_audio,
+    mock_video_to_audio,
+    mentor_data_root: str,
+    mentor_id: str,
+):
+    _test_run_data_update(
+        mock_init_transcription_service,
+        mock_slice_audio,
+        mock_video_to_audio,
+        mentor_data_root,
+        mentor_id,
+        force_update_transcripts=True,
+    )
+
+
+@patch("mentor_pipeline.media_tools.video_to_audio")
+@patch("mentor_pipeline.media_tools.slice_audio")
+@patch("transcribe.init_transcription_service")
+@pytest.mark.parametrize(
+    "mentor_data_root,mentor_id",
+    [(MENTOR_DATA_ROOT, "mentor3-skips-utterances-with-exising-transcripts")],
+)
+def test_run_data_update_skips_utterances_with_existing_transcripts_by_default(
+    mock_init_transcription_service,
+    mock_slice_audio,
+    mock_video_to_audio,
+    mentor_data_root: str,
+    mentor_id: str,
+):
+    _test_run_data_update(
+        mock_init_transcription_service,
+        mock_slice_audio,
+        mock_video_to_audio,
+        mentor_data_root,
+        mentor_id,
+    )
+
+
+def _test_run_data_update(
+    mock_init_transcription_service,
+    mock_slice_audio,
+    mock_video_to_audio,
+    mentor_data_root: str,
+    mentor_id: str,
+    force_update_transcripts: bool = False,
 ):
     mpath = copy_mentor_to_tmp(mentor_id, mentor_data_root)
     mock_transcriptions = MockTranscriptions(mpath, mock_init_transcription_service)
@@ -48,7 +112,7 @@ def test_it_generates_all_data_files_for_a_mentor(
     MockAudioSlicer(mock_slice_audio, create_dummy_output_files=True)
     MockVideoToAudioConverter(mock_video_to_audio, create_dummy_output_files=True)
     p = Pipeline(mentor_id, mpath.root_path_data_mentors)
-    p.data_update()
+    p.data_update(force_update_transcripts=force_update_transcripts)
     assert_utterances_match_expected(mpath)
     expected_questions_paraphrases_answers = load_questions_paraphrases_answers(
         mpath.get_mentor_data(os.path.join("expected_data"))
