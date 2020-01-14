@@ -20,7 +20,7 @@ docker-build:
 
 .PHONY: format
 format: $(VENV)
-	$(VENV)/bin/black mentor_pipeline
+	$(VENV)/bin/black mentor_pipeline tests
 
 PHONY: test
 test: $(VENV)
@@ -31,7 +31,7 @@ test-all: test-format test-lint test-types test
 
 .PHONY: test-format
 test-format: $(VENV)
-	$(VENV)/bin/black --check mentor_pipeline
+	$(VENV)/bin/black --check mentor_pipeline tests
 
 .PHONY: test-lint
 test-lint: $(VENV)

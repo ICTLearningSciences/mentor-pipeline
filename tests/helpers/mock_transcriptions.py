@@ -3,7 +3,10 @@ from unittest.mock import Mock
 
 from mentor_pipeline.mentorpath import MentorPath
 from transcribe import TranscribeJobsUpdate
-from transcribe.mock import mock_transcribe_call_fixture_from_yaml, MockTranscriptions as _MockTranscriptions
+from transcribe.mock import (
+    mock_transcribe_call_fixture_from_yaml,
+    MockTranscriptions as _MockTranscriptions,
+)
 from mentor_pipeline.utterance_asset_type import UTTERANCE_AUDIO
 
 
@@ -29,9 +32,10 @@ class MockTranscriptions:
         mock_logging_info: Mock = None,
     ):
         self.mpath = mpath
-        self.mock_transcriptions = _MockTranscriptions(mock_init_transcription_service, mpath.get_mentor_asset(
-            UTTERANCE_AUDIO.get_mentor_asset_root()
-        ))
+        self.mock_transcriptions = _MockTranscriptions(
+            mock_init_transcription_service,
+            mpath.get_mentor_asset(UTTERANCE_AUDIO.get_mentor_asset_root()),
+        )
         # self.mock_service = Mock()
         # self.mock_logging_info = mock_logging_info
         self.source_file_root_path = mpath.get_mentor_asset(
@@ -52,13 +56,16 @@ class MockTranscriptions:
             utterances = self.mpath.load_utterances()
             for j in update.result.jobs():
                 u = utterances.find_by_id(j.jobId)
-                assert u.transcript == j.transcript, f"update [{i}] expected utterance {u.get_id()} to have transcript '{j.transcript}' but was '{u.transcript}'"
+                assert (
+                    u.transcript == j.transcript
+                ), f"update [{i}] expected utterance {u.get_id()} to have transcript '{j.transcript}' but was '{u.transcript}'"
 
         return _on_update
 
     def mock_transcribe_result_and_callbacks(
-        self,
-        mock_transcribe_call_yaml="mock-transcribe-call.yaml",
+        self, mock_transcribe_call_yaml="mock-transcribe-call.yaml"
     ) -> None:
-        fixture = mock_transcribe_call_fixture_from_yaml(self.mpath.get_mentor_data(mock_transcribe_call_yaml))
+        fixture = mock_transcribe_call_fixture_from_yaml(
+            self.mpath.get_mentor_data(mock_transcribe_call_yaml)
+        )
         self.mock_transcriptions.mock_transcribe_result_and_callbacks(fixture)

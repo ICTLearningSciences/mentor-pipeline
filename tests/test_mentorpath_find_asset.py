@@ -300,8 +300,6 @@ def _test_it_finds(
         u, asset_type, return_non_existing_paths=return_non_existing_paths
     )
     expected_path = (
-        os.path.join(expected_base_path, expected_rel_path)
-        if expected_rel_path
-        else ""
+        os.path.join(expected_base_path, expected_rel_path) if expected_rel_path else ""
     )
     assert expected_path == actual_path
