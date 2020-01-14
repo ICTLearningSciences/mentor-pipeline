@@ -349,9 +349,7 @@ def update_transcripts(
             logging.warning(f"utterance has no audio {u.get_id()}")
             continue
         transcribe_requests.append(
-            TranscribeJobRequest(
-                jobId=u.get_id(), sourceFile=audio_path
-            )
+            TranscribeJobRequest(jobId=u.get_id(), sourceFile=audio_path)
         )
 
     def _on_update(u: TranscribeJobsUpdate) -> None:

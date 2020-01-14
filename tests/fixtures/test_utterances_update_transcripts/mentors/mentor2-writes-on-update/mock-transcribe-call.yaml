@@ -1,18 +1,13 @@
 requests:
-  - batchId: b1
-    jobId: s001p001s00000000e00000100
+  - jobId: s001p001s00000000e00000100
     sourceFile: build/utterance_audio/s001p001s00000000e00000100.mp3
-  - batchId: b1
-    jobId: s001p001s00000212e00000478
+  - jobId: s001p001s00000212e00000478
     sourceFile: build/utterance_audio/s001p001s00000212e00000478.mp3
-  - batchId: b1
-    jobId: s001p002s00000345e00000698
+  - jobId: s001p002s00000345e00000698
     sourceFile: build/utterance_audio/s001p002s00000345e00000698.mp3
-  - batchId: b1
-    jobId: s002p001s00000599e00001012
+  - jobId: s002p001s00000599e00001012
     sourceFile: build/utterance_audio/s002p001s00000599e00001012.mp3
-  - batchId: b1
-    jobId: s002p001s00001234e00001678
+  - jobId: s002p001s00001234e00001678
     sourceFile: build/utterance_audio/s002p001s00001234e00001678.mp3
 updates:
   - idsUpdated:
