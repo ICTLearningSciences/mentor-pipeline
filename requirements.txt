@@ -14,4 +14,4 @@ PyYAML==5.1.2
 requests==2.22.0
 urllib3==1.25.3
 uuid==1.30
-transcribe_aws @ git+https://github.com/ictlearningsciences/py-transcribe-aws.git@1.0.0-alpha.8#egg=transcribe_aws
+transcribe_aws @ git+https://github.com/ictlearningsciences/py-transcribe-aws.git@1.0.0-alpha.10#egg=transcribe_aws
