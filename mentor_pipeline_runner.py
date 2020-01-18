@@ -17,6 +17,12 @@ def main():
         help="update mentor data from session recordings and timestamp files",
     )
     parser.add_argument(
+        "--force-update-transcripts",
+        action="store_true",
+        dest="force_update_transcripts",
+        help="generate new transcripts even for utterances that already have transcripts",
+    )
+    parser.add_argument(
         "--videos-update",
         action="store_true",
         dest="videos_update",
@@ -34,7 +40,7 @@ def main():
     mentor_data = _get_mentors_data_root(args)
     p = Pipeline(args.mentor, mentor_data)
     if args.data_update:
-        p.data_update()
+        p.data_update(force_update_transcripts=bool(args.force_update_transcripts))
     if args.videos_update:
         p.videos_update()
     if args.topics_by_question_generate:

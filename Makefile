@@ -13,11 +13,6 @@ VENV=.venv
 $(VENV):
 	$(MAKE) venv-create
 
-# Removes all mentor files from the local file system
-.PHONY clean:
-clean:
-	rm -rf $(VENV)
-
 # Builds the data processing pipeline dockerfile
 .PHONY docker-build:
 docker-build:
@@ -25,7 +20,7 @@ docker-build:
 
 .PHONY: format
 format: $(VENV)
-	$(VENV)/bin/black mentor_pipeline
+	$(VENV)/bin/black mentor_pipeline tests
 
 PHONY: test
 test: $(VENV)
@@ -36,7 +31,7 @@ test-all: test-format test-lint test-types test
 
 .PHONY: test-format
 test-format: $(VENV)
-	$(VENV)/bin/black --check mentor_pipeline
+	$(VENV)/bin/black --check mentor_pipeline tests
 
 .PHONY: test-lint
 test-lint: $(VENV)
@@ -68,6 +63,11 @@ data/mentors/%/clean:
 videos/%/clean:
 	@echo "cleaning videos/$*..."
 	@rm -rf "videos/$*"
+
+# Removes all mentor files from the local file system
+.PHONY clean:
+clean:
+	rm -rf .venv htmlcov .coverage 
 
 
 # Runs a shell inside the data processing pipeline dockerfile

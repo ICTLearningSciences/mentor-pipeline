@@ -5,10 +5,11 @@ import logging
 import os
 import re
 import shutil
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, Iterable, List, Optional
 
 from ftfy import fix_text
 import pandas as pd
+from uuid import uuid1
 
 from mentor_pipeline.captions import transcript_to_vtt
 from mentor_pipeline import media_tools
@@ -21,7 +22,13 @@ from mentor_pipeline.training_data import (
     PromptsUtterancesBuilder,
     UtteranceDataBuilder,
 )
-from mentor_pipeline.transcriptions import TranscriptionService
+from transcribe import (
+    TranscribeJob,
+    TranscribeJobRequest,
+    TranscribeJobStatus,
+    TranscribeJobsUpdate,
+    TranscriptionService,
+)
 from mentor_pipeline.utils import yaml_load
 from mentor_pipeline.utterance_asset_type import (
     UtteranceAssetType,
@@ -285,25 +292,45 @@ def update_topics(utterances: UtteranceMap, topics: TopicsByQuestion) -> Utteran
     return result
 
 
-@dataclass
-class _UtteranceTranscriptionCall:
-    utterance: Utterance
-    audio_path: str
-
-
-@dataclass
-class OnDidTranscribe:
-    index: int
-    utterance_id: str
-    transcript: str
+def _write_transcripts_to_utterances(
+    jobs: Iterable[TranscribeJob],
+    utterances: UtteranceMap,
+    mp: MentorPath,
+    strip_non_verbal_tokens=True,
+) -> UtteranceMap:
+    result = copy_utterances(utterances)
+    for tres in jobs:
+        try:
+            if tres.status != TranscribeJobStatus.SUCCEEDED:
+                continue
+            text = (
+                re.sub(r"%[a-zA-Z0-9_\-]+[\s]?", "", tres.transcript)
+                if strip_non_verbal_tokens
+                else tres.transcript
+            )
+            audio_path_rel = mp.to_relative_path(
+                tres.sourceFile, UTTERANCE_AUDIO.get_mentor_asset_root()
+            )
+            result.set_transcript(
+                tres.jobId, transcript=text, source_audio=audio_path_rel
+            )
+        except Exception as ex:
+            logging.exception(
+                f"failed to process transcript result for id {tres.jobId} with error: {str(ex)}",
+                ex,
+            )
+    mp.write_utterances(result)
+    return result
 
 
 def update_transcripts(
     utterances: UtteranceMap,
     transcription_service: TranscriptionService,
     mp: MentorPath,
+    batch_id: str = "",
+    force_update: bool = False,
     strip_non_verbal_tokens: bool = True,
-    on_did_transcribe: Optional[Callable[[OnDidTranscribe], None]] = None,
+    on_update: Optional[Callable[[TranscribeJobsUpdate], None]] = None,
 ) -> UtteranceMap:
     """
     Give sessions data and a root sessions directory,
@@ -311,9 +338,9 @@ def update_transcripts(
     returning an updated copy of the sessions data with transcriptions populated.
     """
     result = copy_utterances(utterances)
-    call_list: List[_UtteranceTranscriptionCall] = []
+    transcribe_requests: List[TranscribeJobRequest] = []
     for u in result.utterances():
-        if u.transcript:
+        if u.transcript and not force_update:
             continue  # transcript already set
         if u.is_no_transcription_type():
             continue  # transcript already set
@@ -321,34 +348,20 @@ def update_transcripts(
         if not audio_path:
             logging.warning(f"utterance has no audio {u.get_id()}")
             continue
-        call_list.append(
-            _UtteranceTranscriptionCall(utterance=u, audio_path=audio_path)
+        transcribe_requests.append(
+            TranscribeJobRequest(jobId=u.get_id(), sourceFile=audio_path)
         )
-    for i, call in enumerate(call_list):
-        try:
-            logging.info(
-                f"transcribe [{i + 1}/{len(call_list)}] audio={call.audio_path}"
-            )
-            text = transcription_service.transcribe(call.audio_path)
-            if strip_non_verbal_tokens:
-                text = re.sub(r"%[a-zA-Z0-9_\-]+[\s]?", "", text)
-            audio_path_rel = mp.to_relative_path(
-                call.audio_path, UTTERANCE_AUDIO.get_mentor_asset_root()
-            )
-            result.set_transcript(
-                call.utterance.get_id(), transcript=text, source_audio=audio_path_rel
-            )
-            mp.write_utterances(result)
-            if on_did_transcribe is not None:
-                on_did_transcribe(
-                    OnDidTranscribe(
-                        index=i, utterance_id=call.utterance.get_id(), transcript=text
-                    )
-                )
-        except BaseException as err:
-            logging.warning(
-                f"failed to transcribe audio for id {u.get_id()} at path {audio_path}: {err}"
-            )
+
+    def _on_update(u: TranscribeJobsUpdate) -> None:
+        _write_transcripts_to_utterances(u.result.jobs(), utterances, mp)
+        if on_update:
+            on_update(u)
+
+    batch_id = batch_id or str(uuid1())
+    transcribe_result = transcription_service.transcribe(
+        transcribe_requests, on_update=_on_update, batch_id=batch_id
+    )
+    result = _write_transcripts_to_utterances(transcribe_result.jobs(), utterances, mp)
     return result
 
 

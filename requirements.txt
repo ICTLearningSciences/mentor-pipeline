@@ -13,5 +13,5 @@ pytz==2019.1
 PyYAML==5.1.2
 requests==2.22.0
 urllib3==1.25.3
-watson-developer-cloud==2.10.1
-websocket-client==0.48.0
+uuid==1.30
+transcribe_aws @ git+https://github.com/ictlearningsciences/py-transcribe-aws.git@1.0.0#egg=transcribe_aws

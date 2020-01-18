@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 
 from mentor_pipeline.process import update_transcripts
-from mentor_pipeline import transcriptions
+import transcribe
 from mentor_pipeline.utterances import utterances_from_yaml
 
 from .helpers import (
@@ -14,7 +14,7 @@ from .helpers import (
 MENTOR_DATA_ROOT = resource_root_mentors_for_test(__file__)
 
 
-@patch.object(transcriptions, "init_transcription_service")
+@patch.object(transcribe, "init_transcription_service")
 @pytest.mark.parametrize("mentor_data_root,mentor_id", [(MENTOR_DATA_ROOT, "mentor1")])
 def test_it_fills_in_transcripts_on_utterance_data(
     mock_init_transcription_service, mentor_data_root: str, mentor_id: str
@@ -24,9 +24,42 @@ def test_it_fills_in_transcripts_on_utterance_data(
     )
 
 
-@patch.object(transcriptions, "init_transcription_service")
-@pytest.mark.parametrize("mentor_data_root,mentor_id", [(MENTOR_DATA_ROOT, "mentor1")])
-def test_it_logs_info_for_each_transcription_call(
+@patch.object(transcribe, "init_transcription_service")
+@pytest.mark.parametrize(
+    "mentor_data_root,mentor_id", [(MENTOR_DATA_ROOT, "mentor2-writes-on-update")]
+)
+def test_it_writes_transcriptions_to_utterances_on_each_update_callback(
+    mock_init_transcription_service, mentor_data_root: str, mentor_id: str
+):
+    _test_utterances_update_transcripts(
+        mock_init_transcription_service, mentor_data_root, mentor_id, test_logging=True
+    )
+
+
+@patch.object(transcribe, "init_transcription_service")
+@pytest.mark.parametrize(
+    "mentor_data_root,mentor_id",
+    [(MENTOR_DATA_ROOT, "mentor3-skips-utterances-with-transcripts")],
+)
+def test_it_skips_utterances_with_existing_transcripts(
+    mock_init_transcription_service, mentor_data_root: str, mentor_id: str
+):
+    _test_utterances_update_transcripts(
+        mock_init_transcription_service, mentor_data_root, mentor_id, test_logging=True
+    )
+
+
+@patch.object(transcribe, "init_transcription_service")
+@pytest.mark.parametrize(
+    "mentor_data_root,mentor_id",
+    [
+        (
+            MENTOR_DATA_ROOT,
+            "mentor4-force-updates-utterances-with-existing-transcripts-when-flag-set",
+        )
+    ],
+)
+def test_it_force_updates_utterances_with_existing_transcripts_when_flag_set(
     mock_init_transcription_service, mentor_data_root: str, mentor_id: str
 ):
     _test_utterances_update_transcripts(
@@ -39,6 +72,7 @@ def _test_utterances_update_transcripts(
     mentor_data_root: str,
     mentor_id: str,
     test_logging=False,
+    force_update=False,
 ):
     with patch("logging.info") as mock_logging_info:
         mpath = copy_mentor_to_tmp(mentor_id, mentor_data_root)
@@ -52,12 +86,13 @@ def _test_utterances_update_transcripts(
         expected_utterances = utterances_from_yaml(
             mpath.get_mentor_data("expected-utterances.yaml")
         )
-        mock_transcriptions.load_expected_calls()
+        mock_transcriptions.mock_transcribe_result_and_callbacks()
         actual_utterances = update_transcripts(
             input_utterances,
             dummy_transcription_service,
             mpath,
-            on_did_transcribe=None,  # mock_transcriptions.get_on_did_transcribe(),
+            on_update=mock_transcriptions.mock_on_update(),
+            force_update=force_update,
         )
         mock_transcriptions.expect_calls()
         assert expected_utterances.to_dict() == actual_utterances.to_dict()

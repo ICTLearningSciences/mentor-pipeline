@@ -48,9 +48,9 @@ def _test_sessions_to_audio(
     require_audio_slice_calls=True,
     test_logging=False,
 ):
-    with patch("mentor_pipeline.media_tools.video_to_audio") as mock_video_to_audio, patch(
-        "logging.info"
-    ) as mock_logging_info:
+    with patch(
+        "mentor_pipeline.media_tools.video_to_audio"
+    ) as mock_video_to_audio, patch("logging.info") as mock_logging_info:
         mp = copy_mentor_to_tmp(mentor_id, mentor_data_root)
         mock_video_to_audio_converter = MockVideoToAudioConverter(
             mock_video_to_audio,

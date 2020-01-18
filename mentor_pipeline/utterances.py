@@ -116,13 +116,14 @@ class UtteranceMap:
         uid = _utterance_id(session, part, time_start, time_end)
         return self.utterancesById.get(uid)
 
-    def set_transcript(self, uid: str, transcript: str, source_audio: str) -> bool:
+    def set_transcript(self, uid: str, transcript: str, source_audio: str) -> None:
         if uid not in self.utterancesById:
-            return False
+            raise ValueError(
+                f"set_transcript called with unknown utternace id: '{uid}'"
+            )
         u = self.utterancesById[uid]
         u.transcript = transcript
         u.utteranceAudio = source_audio
-        return True
 
     def to_dict(self):
         return asdict(self)
