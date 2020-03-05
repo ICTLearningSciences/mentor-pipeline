@@ -1,51 +1,58 @@
-import argparse
+# import argparse
+import glob
 import os
 
+import click
+
 from mentor_pipeline.run import Pipeline
+from mentor_pipeline.tools import noise
 
 
-def _get_mentors_data_root(args) -> str:
-    return args.data or os.path.join(os.path.curdir, "data", "mentors")
+def _get_mentors_data_root(data: os.PathLike) -> str:
+    return data or os.path.join(os.path.curdir, "data", "mentors")
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--data-update",
-        action="store_true",
-        dest="data_update",
-        help="update mentor data from session recordings and timestamp files",
-    )
-    parser.add_argument(
-        "--force-update-transcripts",
-        action="store_true",
-        dest="force_update_transcripts",
-        help="generate new transcripts even for utterances that already have transcripts",
-    )
-    parser.add_argument(
-        "--videos-update",
-        action="store_true",
-        dest="videos_update",
-        help="update mentor videos data and session recordings",
-    )
-    parser.add_argument(
-        "--topics-by-question-generate",
-        action="store_true",
-        dest="topics_by_question_generate",
-        help="update mentor videos data and session recordings",
-    )
-    parser.add_argument("-m", "--mentor", required=True, help="the mentor")
-    parser.add_argument("--data", help="the path to the root of all mentors")
-    args = parser.parse_args()
-    mentor_data = _get_mentors_data_root(args)
-    p = Pipeline(args.mentor, mentor_data)
-    if args.data_update:
-        p.data_update(force_update_transcripts=bool(args.force_update_transcripts))
-    if args.videos_update:
-        p.videos_update()
-    if args.topics_by_question_generate:
-        p.topics_by_question_generate(mentors=[args.mentor])
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
+@click.option("--force-update-transcripts", default=False, is_flag=True)
+@click.option("-m", "--mentor", required=True, type=str)
+@click.option("-d", "--data", required=False, type=click.Path(exists=True))
+def data_update(force_update_transcripts, mentor, data):
+    p = Pipeline(mentor, _get_mentors_data_root(data))
+    p.data_update(force_update_transcripts=bool(force_update_transcripts))
+
+
+@cli.command()
+@click.option("-m", "--mentor", required=True, type=str)
+@click.option("-d", "--data", required=False, type=click.Path(exists=True))
+def topics_by_question_generate(mentor, data):
+    p = Pipeline(mentor, _get_mentors_data_root(data))
+    p.topics_by_question_generate(mentors=[mentor])
+
+
+@cli.command()
+@click.option("-m", "--mentor", required=True, type=str)
+@click.option("-d", "--data", required=False, type=click.Path(exists=True))
+def videos_update(mentor, data):
+    p = Pipeline(mentor, _get_mentors_data_root(data))
+    p.videos_update()
+
+
+@cli.command()
+@click.option(
+    "-n", "--noise", "noise_sample", required=True, type=click.Path(exists=True)
+)
+@click.argument("files", required=True, nargs=-1, type=click.Path())
+def reduce_noise(noise_sample, files):
+    all_files = []
+    for f in [files] if isinstance(files, str) else files:
+        all_files.extend([x for x in glob.glob(f)])
+    noise.reduce_noise(noise_sample, all_files)
 
 
 if __name__ == "__main__":
-    main()
+    cli()
