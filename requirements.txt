@@ -1,5 +1,6 @@
 certifi==2019.6.16
 chardet==3.0.4
+click==7.0.0
 dataclasses==0.6
 ffmpy==0.2.2
 ftfy==5.6

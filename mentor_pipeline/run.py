@@ -28,10 +28,6 @@ class Pipeline:
         )
         logging.getLogger().setLevel(logging.INFO)
 
-    def sync_timestamps(self):
-        utterances_new = sync_timestamps(self.mpath)
-        print(f"utterances={utterances_new.to_dict()}")
-
     def data_update(self, force_update_transcripts: bool = False):
         transcription_service = transcribe.init_transcription_service()
         utterances_synced = sync_timestamps(self.mpath)
@@ -65,6 +61,19 @@ class Pipeline:
         self.mpath.write_training_utterance_data(td_result.utterance_data)
         self.mpath.write_utterances(td_result.utterances)
 
+    def sync_timestamps(self):
+        utterances_new = sync_timestamps(self.mpath)
+        print(f"utterances={utterances_new.to_dict()}")
+
+    def topics_by_question_generate(
+        self, mentors: List[str] = None
+    ) -> TopicsByQuestion:
+        utterances = self.mpath.load_utterances(create_new=False)
+        assert utterances is not None
+        tbq = utterances_to_topics_by_question(utterances)
+        self.mpath.write_topics_by_question(tbq)
+        return tbq
+
     def videos_update(self):
         utterances_init = self.mpath.load_utterances(create_new=False)
         if not utterances_init:
@@ -81,12 +90,3 @@ class Pipeline:
             utterances_w_video_mobile, self.mpath
         )
         self.mpath.write_utterances(utterances_w_video_web)
-
-    def topics_by_question_generate(
-        self, mentors: List[str] = None
-    ) -> TopicsByQuestion:
-        utterances = self.mpath.load_utterances(create_new=False)
-        assert utterances is not None
-        tbq = utterances_to_topics_by_question(utterances)
-        self.mpath.write_topics_by_question(tbq)
-        return tbq
