@@ -55,5 +55,4 @@ def reduce_noise(noise_sample, files):
 
 
 if __name__ == "__main__":
-    print("HERE!")
     cli()
