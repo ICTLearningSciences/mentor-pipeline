@@ -1,0 +1,18 @@
+
+utterances:
+  - mentor: mentor5-works-with-period-delimited-timestamp-formats
+    question: "time stamps with all : delimiter"
+    part: 1
+    session: 1
+    sessionTimestamps: build/recordings/session1/part1_timestamps.csv
+    timeStart: 1.23
+    timeEnd: 4.56
+    utteranceType: _ANSWER_
+  - mentor: mentor5-works-with-period-delimited-timestamp-formats
+    question: "time stamps with some . delimiter"
+    part: 1
+    session: 1
+    sessionTimestamps: build/recordings/session1/part1_timestamps.csv
+    timeStart: 7.89
+    timeEnd: 12.35
+    utteranceType: _ANSWER_
