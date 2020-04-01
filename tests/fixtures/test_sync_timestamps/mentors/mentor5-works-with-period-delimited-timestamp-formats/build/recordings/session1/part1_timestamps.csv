@@ -1,0 +1,3 @@
+Notes,Answer/Utterance,Question,Response start,Response end
+,A,"time stamps with all : delimiter",00:00:01:23,00:00:04:56
+,A,"time stamps with some . delimiter",00:00:07.891,00:00:12.345
