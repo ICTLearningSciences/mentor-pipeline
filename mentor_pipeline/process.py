@@ -11,6 +11,7 @@ from ftfy import fix_text
 import pandas as pd
 from uuid import uuid1
 
+import mentor_pipeline
 from mentor_pipeline.captions import transcript_to_vtt
 from mentor_pipeline import media_tools
 from mentor_pipeline.mentorpath import MentorPath
@@ -363,6 +364,34 @@ def update_transcripts(
     )
     result = _write_transcripts_to_utterances(transcribe_result.jobs(), utterances, mp)
     return result
+
+
+def utterances_noise_reduction(
+    utterances: UtteranceMap, mp: MentorPath
+) -> UtteranceMap:
+    """
+    Applies noise reduction to utterance videos if and only if noise samples are provided
+    """
+    noise_samples = mp.find_noise_samples()
+    if not noise_samples:
+        return utterances
+
+    def noise_sample_for_utterance(u: Utterance) -> str:
+        uid = u.get_id()
+        for n in noise_samples:
+            if uid.startswith(os.path.splitext(os.path.basename(n))[0]):
+                return n
+        return ""
+
+    for u in utterances.utterances():
+        utterance_video = mp.find_utterance_video(u)
+        if not utterance_video:
+            continue
+        noise_sample = noise_sample_for_utterance(u)
+        if not noise_sample:
+            continue
+        mentor_pipeline.noise.reduce_noise(noise_sample, utterance_video)
+    return utterances
 
 
 @dataclass
