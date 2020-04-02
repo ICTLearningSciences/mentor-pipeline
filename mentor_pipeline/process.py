@@ -104,6 +104,9 @@ def _prepare_videos(
 
 
 def _timestr_to_secs(s: str) -> float:
+    s = s.strip() if s else ''
+    if not s:
+        return 0.0
     h, m, s, ms = re.split(r"[:.]", s)
     td = timedelta(hours=int(h), minutes=int(m), seconds=int(s))
     return round(float(td.seconds) + (0 if not ms else float(ms) / (10 ** len(ms))), 2)
