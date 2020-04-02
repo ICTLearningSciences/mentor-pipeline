@@ -5,7 +5,7 @@ import os
 import click
 
 from mentor_pipeline.run import Pipeline
-from mentor_pipeline.tools import noise
+from mentor_pipeline import noise
 
 
 def _get_mentors_data_root(data: os.PathLike) -> str:
