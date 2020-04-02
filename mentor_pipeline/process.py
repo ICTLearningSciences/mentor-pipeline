@@ -104,7 +104,7 @@ def _prepare_videos(
 
 
 def _timestr_to_secs(s: str) -> float:
-    s = s.strip() if s else ''
+    s = s.strip() if s else ""
     if not s:
         return 0.0
     h, m, s, ms = re.split(r"[:.]", s)
