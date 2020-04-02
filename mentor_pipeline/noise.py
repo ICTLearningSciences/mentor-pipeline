@@ -7,7 +7,7 @@ import soundfile as sf
 from typing import Iterable, Union
 
 
-def _reduce_noise(noise_sample: np.ndarray, f: os.PathLike):
+def _reduce_noise(noise_sample: np.ndarray, f: Union[str, os.PathLike]):
     f = os.path.abspath(f)
     fpath, fext = os.path.splitext(f)
     save_file = f"{fpath}-prenoisefix{fext}"
@@ -29,7 +29,7 @@ def _reduce_noise(noise_sample: np.ndarray, f: os.PathLike):
 
 
 def reduce_noise(
-    noise_sample: str, files_to_fix: Union[Iterable[os.PathLike], os.PathLike]
+    noise_sample: str, files_to_fix: Union[str, Iterable[os.PathLike], os.PathLike]
 ):
     noise, _ = sf.read(noise_sample)
     for f in (
