@@ -99,9 +99,6 @@ class MentorPath:
     def _path_from(self, root: str, p: str = None) -> str:
         return os.path.join(root, p) if p else root
 
-    def get_recordings_path(self, p: str = None) -> str:
-        return self._path_from(os.path.join(self.get_build_path(), "recordings"), p)
-
     def get_build_path(self, p: str = None) -> str:
         return self._path_from(os.path.join(self.get_mentor_data(), "build"), p)
 
@@ -130,8 +127,14 @@ class MentorPath:
             os.path.join(self.root_path_video_mentors, self.get_mentor_id()), p
         )
 
+    def get_noise_path(self, p: str = None) -> str:
+        return self._path_from(os.path.join(self.get_build_path(), "noise"), p)
+
     def get_paraphrases_by_question(self) -> str:
         return self.get_root_path_data("paraphrases_by_question.csv")
+
+    def get_recordings_path(self, p: str = None) -> str:
+        return self._path_from(os.path.join(self.get_build_path(), "recordings"), p)
 
     def get_root_path_data(self, p: str = None) -> str:
         return self._path_from(os.path.dirname(self.root_path_data_mentors), p)
@@ -215,6 +218,19 @@ class MentorPath:
             if a_path:
                 return a_path
         return ""
+
+    def find_noise_samples(self):
+        noise_root = self.get_noise_path()
+        return (
+            [
+                os.path.join(noise_root, f)
+                for f in os.listdir(noise_root)
+                if os.path.isfile(os.path.join(noise_root, f))
+                and os.path.splitext(f)[1] == ".wav"
+            ]
+            if noise_root and os.path.isdir(noise_root)
+            else []
+        )
 
     def find_session_audio(
         self, utterance: Utterance, return_non_existing_paths=False

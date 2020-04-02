@@ -1,0 +1,10 @@
+- noise_sample: build/noise/s001p001.wav
+  target: build/utterance_video/s001p001s00000000e00000100.mp4
+# - noise_sample: build/recordings/noise/s001p001.wav
+#   target: build/utterance_video/s001p001s00000000e00000100.mp4
+# - noise_sample: build/recordings/noise/s001p001.wav
+#   target: build/utterance_video/s001p001s00000000e00000100.mp4
+# - noise_sample: build/recordings/noise/s001p001.wav
+#   target: build/utterance_video/s001p001s00000000e00000100.mp4
+# - noise_sample: build/recordings/noise/s001p001.wav
+#   target: build/utterance_video/s001p001s00000000e00000100.mp4
