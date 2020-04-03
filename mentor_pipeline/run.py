@@ -75,6 +75,15 @@ class Pipeline:
         self.mpath.write_topics_by_question(tbq)
         return tbq
 
+    def videos_reduce_noise(self):
+        utterances = self.mpath.load_utterances(create_new=False)
+        if not utterances:
+            logging.error(
+                f"unable to run video reduce noise with no utterances. Try data_update first."
+            )
+            return
+        utterances_noise_reduction(utterances, self.mpath)
+
     def videos_update(self):
         utterances_init = self.mpath.load_utterances(create_new=False)
         if not utterances_init:
