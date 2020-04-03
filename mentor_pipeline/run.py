@@ -12,6 +12,7 @@ from mentor_pipeline.process import (
     update_paraphrases,
     update_topics,
     update_transcripts,
+    utterances_noise_reduction,
     utterances_slice_audio,
     utterances_slice_video,
     utterances_to_captions,
@@ -83,8 +84,12 @@ class Pipeline:
             return
         utterances_w_video = utterances_slice_video(utterances_init, self.mpath)
         self.mpath.write_utterances(utterances_w_video)
-        utterances_w_video_mobile = prepare_videos_mobile(
+        # TODO: add test for this
+        utterances_w_noise_reduction = utterances_noise_reduction(
             utterances_w_video, self.mpath
+        )
+        utterances_w_video_mobile = prepare_videos_mobile(
+            utterances_w_noise_reduction, self.mpath
         )
         utterances_w_video_web = prepare_videos_web(
             utterances_w_video_mobile, self.mpath
