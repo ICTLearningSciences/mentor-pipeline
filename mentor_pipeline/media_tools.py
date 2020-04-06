@@ -1,4 +1,3 @@
-import logging
 import os
 import re
 import subprocess
@@ -17,27 +16,23 @@ def find_video_dims(video_file):
     )
 
 
-def video_encode_for_mobile(src_file: str, tgt_file: str) -> None:
-    video_dims = find_video_dims(src_file)
-    crop = None
-    if video_dims == (1280, 720):
-        crop = "614:548:333:86"
-    elif video_dims == (1920, 1080):
-        crop = "918:822:500:220"
-    if crop:
-        logging.info(
-            f"video_encode_for_mobile {tgt_file} cropped with {crop} for src file {src_file} with dims {video_dims}"
-        )
+def video_encode_for_mobile(src_file: str, tgt_file: str, target_height=480) -> None:
+    i_w, i_h = find_video_dims(src_file)
+    o_w, o_h = (target_height, target_height)
+    crop_w = 0
+    crop_h = 0
+    if i_w > i_h:
+        # for now assumes we want to zoon in slighly on landscape videos
+        # before cropping to square
+        crop_h = i_h * 0.25
+        crop_w = i_w - (i_h - crop_h)
     else:
-        crop = "614:548:333:86"
-        logging.info(
-            f"video_encode_for_mobile no configured for src file {src_file} with dims {video_dims} using default {crop}"
-        )
+        crop_h = crop_h - crop_h
     os.makedirs(os.path.dirname(tgt_file), exist_ok=True)
     output_command = [
         "-y",
         "-filter:v",
-        f"crop={crop}",
+        f"crop=iw-{crop_w:.0f}:ih-{crop_h:.0f},scale={o_w:.0f}:{o_h:.0f}",
         "-c:v",
         "libx264",
         "-crf",
@@ -50,10 +45,6 @@ def video_encode_for_mobile(src_file: str, tgt_file: str) -> None:
         "aac",
         "-ac",
         "1",
-        "-profile:v",
-        "main",
-        "-level",
-        "4.0",
         "-loglevel",
         "quiet",
     ]

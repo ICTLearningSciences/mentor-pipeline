@@ -12,15 +12,19 @@ from .helpers import Bunch
 @patch("pymediainfo.MediaInfo.parse")
 @patch("ffmpy.FFmpeg")
 @pytest.mark.parametrize(
-    "input_video_dims,expected_crop",
-    [((1280, 720), "614:548:333:86"), ((1920, 1080), "918:822:500:220")],
+    "input_video_dims,expected_filter",
+    [
+        ((1024, 640), "iw-544:ih-160,scale=480:480"),
+        ((1280, 720), "iw-740:ih-180,scale=480:480"),
+        ((1920, 1080), "iw-1110:ih-270,scale=480:480"),
+    ],
 )
-def test_it_adjusts_output_crop_size_for_input_video_dims(
+def test_video_encode_for_mobile_outputs_480x480_video(
     mock_ffmpeg_cls,
     mock_media_info_parse,
     mock_makedirs,
     input_video_dims,
-    expected_crop,
+    expected_filter,
 ):
     # TODO: update test to support a wider range of arbitrary input video sizes?
     input = "some_input_video.mp4"
@@ -39,6 +43,6 @@ def test_it_adjusts_output_crop_size_for_input_video_dims(
     mock_ffmpeg_cls.return_value = mockFFmpegInst
     video_encode_for_mobile(input, output)
     mock_ffmpeg_cls.assert_called_once_with(
-        inputs={input: None}, outputs={output: Contains(f"crop={expected_crop}")}
+        inputs={input: None}, outputs={output: Contains(f"crop={expected_filter}")}
     )
     mockFFmpegInst.run.assert_called_once()
