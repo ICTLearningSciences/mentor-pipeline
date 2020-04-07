@@ -54,6 +54,48 @@ def video_encode_for_mobile(src_file: str, tgt_file: str, target_height=480) -> 
     ff.run()
 
 
+def video_encode_for_web(
+    src_file: str, tgt_file: str, max_height=720, target_aspect=1.77777777778
+) -> None:
+    i_w, i_h = find_video_dims(src_file)
+    crop_w = 0
+    crop_h = 0
+    o_w = 0
+    o_h = 0
+    i_aspect = float(i_w) / float(i_h)
+    if i_aspect >= target_aspect:
+        crop_w = i_w - (i_h * target_aspect)
+        o_h = round(min(max_height, i_h))
+    else:
+        crop_h = i_h - (i_w * (1.0 / target_aspect))
+        o_h = round(min(max_height, i_w * (1.0 / target_aspect)))
+    o_w = int(o_h * target_aspect)
+    os.makedirs(os.path.dirname(tgt_file), exist_ok=True)
+    output_command = [
+        "-y",
+        "-filter:v",
+        f"crop=iw-{crop_w:.0f}:ih-{crop_h:.0f},scale={o_w:.0f}:{o_h:.0f}",
+        "-c:v",
+        "libx264",
+        "-crf",
+        "23",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
+        "-c:a",
+        "aac",
+        "-ac",
+        "1",
+        "-loglevel",
+        "quiet",
+    ]
+    ff = ffmpy.FFmpeg(
+        inputs={src_file: None}, outputs={tgt_file: tuple(i for i in output_command)}
+    )
+    ff.run()
+
+
 def slice_audio(
     src_file: str, target_file: str, time_start: float, time_end: float
 ) -> None:
