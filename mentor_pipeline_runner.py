@@ -27,6 +27,18 @@ def data_update(force_update_transcripts, mentor, data):
 
 
 @cli.command()
+@click.option(
+    "-n", "--noise", "noise_sample", required=True, type=click.Path(exists=True)
+)
+@click.argument("files", required=True, nargs=-1, type=click.Path())
+def reduce_noise(noise_sample, files):
+    all_files = []
+    for f in [files] if isinstance(files, str) else files:
+        all_files.extend([x for x in glob.glob(f)])
+    noise.reduce_noise(noise_sample, all_files)
+
+
+@cli.command()
 @click.option("-m", "--mentor", required=True, type=str)
 @click.option("-d", "--data", required=False, type=click.Path(exists=True))
 def topics_by_question_generate(mentor, data):
@@ -37,21 +49,17 @@ def topics_by_question_generate(mentor, data):
 @cli.command()
 @click.option("-m", "--mentor", required=True, type=str)
 @click.option("-d", "--data", required=False, type=click.Path(exists=True))
-def videos_update(mentor, data):
+def videos_reduce_noise(mentor, data):
     p = Pipeline(mentor, _get_mentors_data_root(data))
-    p.videos_update()
+    p.videos_reduce_noise()
 
 
 @cli.command()
-@click.option(
-    "-n", "--noise", "noise_sample", required=True, type=click.Path(exists=True)
-)
-@click.argument("files", required=True, nargs=-1, type=click.Path())
-def reduce_noise(noise_sample, files):
-    all_files = []
-    for f in [files] if isinstance(files, str) else files:
-        all_files.extend([x for x in glob.glob(f)])
-    noise.reduce_noise(noise_sample, all_files)
+@click.option("-m", "--mentor", required=True, type=str)
+@click.option("-d", "--data", required=False, type=click.Path(exists=True))
+def videos_update(mentor, data):
+    p = Pipeline(mentor, _get_mentors_data_root(data))
+    p.videos_update()
 
 
 if __name__ == "__main__":

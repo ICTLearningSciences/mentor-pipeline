@@ -104,6 +104,9 @@ def _prepare_videos(
 
 
 def _timestr_to_secs(s: str) -> float:
+    s = s.strip() if s else ""
+    if not s:
+        return 0.0
     h, m, s, ms = re.split(r"[:.]", s)
     td = timedelta(hours=int(h), minutes=int(m), seconds=int(s))
     return round(float(td.seconds) + (0 if not ms else float(ms) / (10 ** len(ms))), 2)
@@ -366,6 +369,13 @@ def update_transcripts(
     return result
 
 
+@dataclass
+class _UtteranceReduceNoise:
+    utterance: Utterance
+    noise_sample: str
+    utterance_video: str
+
+
 def utterances_noise_reduction(
     utterances: UtteranceMap, mp: MentorPath
 ) -> UtteranceMap:
@@ -374,6 +384,9 @@ def utterances_noise_reduction(
     """
     noise_samples = mp.find_noise_samples()
     if not noise_samples:
+        logging.info(
+            f"utterances_noise_reduction no noise samples found in {mp.get_noise_path()}"
+        )
         return utterances
 
     def noise_sample_for_utterance(u: Utterance) -> str:
@@ -383,6 +396,7 @@ def utterances_noise_reduction(
                 return n
         return ""
 
+    targets: List[_UtteranceReduceNoise] = []
     for u in utterances.utterances():
         utterance_video = mp.find_utterance_video(u)
         if not utterance_video:
@@ -390,7 +404,16 @@ def utterances_noise_reduction(
         noise_sample = noise_sample_for_utterance(u)
         if not noise_sample:
             continue
-        mentor_pipeline.noise.reduce_noise(noise_sample, utterance_video)
+        targets.append(
+            _UtteranceReduceNoise(
+                utterance=u, noise_sample=noise_sample, utterance_video=utterance_video
+            )
+        )
+    for i, t in enumerate(targets):
+        logging.info(
+            f"utterances_noise_reduction [{i + 1}/{len(targets)}] noise={t.noise_sample}, target={t.utterance_video}"
+        )
+        mentor_pipeline.noise.reduce_noise(t.noise_sample, t.utterance_video)
     return utterances
 
 
