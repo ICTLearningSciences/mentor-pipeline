@@ -55,8 +55,8 @@ def test_video_encode_for_mobile_outputs_480x480_video(
     "input_video_dims,expected_filter",
     [
         ((1024, 640), "iw-0:ih-64,scale=1024:576"),
-        # ((1280, 720), "iw-0:ih-0,scale=1280:720"),
-        # ((1920, 1080), "iw-0:ih-0,scale=1280:720"),
+        ((1280, 720), "iw-0:ih-0,scale=1280:720"),
+        ((1920, 1080), "iw-0:ih-0,scale=1280:720"),
     ],
 )
 def test_video_encode_for_web_outputs_16x9_video_max_720p(
@@ -66,7 +66,6 @@ def test_video_encode_for_web_outputs_16x9_video_max_720p(
     input_video_dims,
     expected_filter,
 ):
-    # TODO: update test to support a wider range of arbitrary input video sizes?
     input = "some_input_video.mp4"
     output = "output_video_path.mp4"
     mock_media_info_parseResult = Bunch(
