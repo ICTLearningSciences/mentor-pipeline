@@ -130,13 +130,40 @@ def slice_video(
     normalize_audio_lrt: int = 7,
 ) -> None:
     os.makedirs(os.path.dirname(target_file), exist_ok=True)
+    output_command = [
+        "-y",
+        "-ss",
+        f"{time_start}",
+        "-to",
+        f"{time_end}",
+        "-c:v",
+        "libx264",
+        "-crf",
+        "23",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
+        "-c:a",
+        "aac",
+        "-ac",
+        "1",
+        "-loglevel",
+        "quiet",
+    ]
+    ff = ffmpy.FFmpeg(
+        inputs={src_file: None}, outputs={target_file: tuple(i for i in output_command)}
+    )
+    ff.run()
     if normalize_audio:
+        fbase, fext = os.path.splitext(target_file)
+        tmp_file = os.path.join(fbase, f".tmp{fext}")
         subprocess.run(
             [
                 "ffmpeg-normalize",
-                src_file,
-                "--output",
                 target_file,
+                "--output",
+                tmp_file,
                 "-lrt",
                 "7",
                 "-v",
@@ -147,40 +174,10 @@ def slice_video(
                 "-ext",
                 "mp4",
                 "--extra-output-options",
-                f"-y -ss {time_start} -to {time_end} -crf 23 -pix_fmt yuv420p -movflags +faststart -profile:v main -level 4.0 -loglevel quiet",
+                f"-y -crf 23 -pix_fmt yuv420p -movflags +faststart -loglevel quiet",
             ]
         )
-    else:
-        output_command = [
-            "-y",
-            "-ss",
-            f"{time_start}",
-            "-to",
-            f"{time_end}",
-            "-c:v",
-            "libx264",
-            "-crf",
-            "23",
-            "-pix_fmt",
-            "yuv420p",
-            "-movflags",
-            "+faststart",
-            "-c:a",
-            "aac",
-            "-ac",
-            "1",
-            "-profile:v",
-            "main",
-            "-level",
-            "4.0",
-            "-loglevel",
-            "quiet",
-        ]
-        ff = ffmpy.FFmpeg(
-            inputs={src_file: None},
-            outputs={target_file: tuple(i for i in output_command)},
-        )
-        ff.run()
+        os.replace(tmp_file, target_file)
 
 
 def video_to_audio(input_file, output_file=None, output_audio_encoding="mp3"):
