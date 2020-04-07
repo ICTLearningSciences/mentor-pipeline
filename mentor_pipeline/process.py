@@ -142,7 +142,7 @@ def prepare_videos_web(utterances: UtteranceMap, mp: MentorPath) -> UtteranceMap
         utterances,
         mp,
         UTTERANCE_VIDEO_WEB,
-        _copyfile,  # for now just copying files for web
+        media_tools.video_encode_for_web,
         "prepare_videos_web",
     )
 
