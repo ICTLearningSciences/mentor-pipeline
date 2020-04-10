@@ -23,7 +23,7 @@ from mentor_pipeline.utterance_asset_type import (
 MENTOR_ROOT = resource_root_mentors_for_test(__file__)
 
 
-@patch("shutil.copyfile")
+@patch("mentor_pipeline.media_tools.video_encode_for_web")
 @patch("mentor_pipeline.media_tools.video_encode_for_mobile")
 @patch("mentor_pipeline.media_tools.slice_video")
 @pytest.mark.parametrize("mentor_root,mentor_id", [(MENTOR_ROOT, "mentor1")])

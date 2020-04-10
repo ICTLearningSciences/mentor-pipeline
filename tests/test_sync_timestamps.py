@@ -37,6 +37,16 @@ def test_it_assigns_asset_paths(mentor_data_root: str, mentor_id: str):
     _test_synced_utterances_match_expected(mentor_data_root, mentor_id)
 
 
+@pytest.mark.parametrize(
+    "mentor_data_root,mentor_id",
+    [(MENTOR_DATA_ROOT, "mentor5-works-with-period-delimited-timestamp-formats")],
+)
+def test_it_works_with_period_delimited_timestamp_formats(
+    mentor_data_root: str, mentor_id: str
+):
+    _test_synced_utterances_match_expected(mentor_data_root, mentor_id)
+
+
 def _test_synced_utterances_match_expected(mentor_data_root: str, mentor_id: str):
     mp = MentorPath(mentor_id=mentor_id, root_path_data_mentors=mentor_data_root)
     actual_utterances = sync_timestamps(mp)

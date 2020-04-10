@@ -12,6 +12,7 @@ from mentor_pipeline.process import (
     update_paraphrases,
     update_topics,
     update_transcripts,
+    utterances_noise_reduction,
     utterances_slice_audio,
     utterances_slice_video,
     utterances_to_captions,
@@ -27,10 +28,6 @@ class Pipeline:
             mentor_id=mentor, root_path_data_mentors=mentor_data_path
         )
         logging.getLogger().setLevel(logging.INFO)
-
-    def sync_timestamps(self):
-        utterances_new = sync_timestamps(self.mpath)
-        print(f"utterances={utterances_new.to_dict()}")
 
     def data_update(self, force_update_transcripts: bool = False):
         transcription_service = transcribe.init_transcription_service()
@@ -65,22 +62,9 @@ class Pipeline:
         self.mpath.write_training_utterance_data(td_result.utterance_data)
         self.mpath.write_utterances(td_result.utterances)
 
-    def videos_update(self):
-        utterances_init = self.mpath.load_utterances(create_new=False)
-        if not utterances_init:
-            logging.error(
-                f"unable to run video update with no utterances. Try data_update first."
-            )
-            return
-        utterances_w_video = utterances_slice_video(utterances_init, self.mpath)
-        self.mpath.write_utterances(utterances_w_video)
-        utterances_w_video_mobile = prepare_videos_mobile(
-            utterances_w_video, self.mpath
-        )
-        utterances_w_video_web = prepare_videos_web(
-            utterances_w_video_mobile, self.mpath
-        )
-        self.mpath.write_utterances(utterances_w_video_web)
+    def sync_timestamps(self):
+        utterances_new = sync_timestamps(self.mpath)
+        print(f"utterances={utterances_new.to_dict()}")
 
     def topics_by_question_generate(
         self, mentors: List[str] = None
@@ -90,3 +74,33 @@ class Pipeline:
         tbq = utterances_to_topics_by_question(utterances)
         self.mpath.write_topics_by_question(tbq)
         return tbq
+
+    def videos_reduce_noise(self):
+        utterances = self.mpath.load_utterances(create_new=False)
+        if not utterances:
+            logging.error(
+                f"unable to run video reduce noise with no utterances. Try data_update first."
+            )
+            return
+        utterances_noise_reduction(utterances, self.mpath)
+
+    def videos_update(self):
+        utterances_init = self.mpath.load_utterances(create_new=False)
+        if not utterances_init:
+            logging.error(
+                f"unable to run video update with no utterances. Try data_update first."
+            )
+            return
+        utterances_w_video = utterances_slice_video(utterances_init, self.mpath)
+        self.mpath.write_utterances(utterances_w_video)
+        # TODO: add test for this
+        utterances_w_noise_reduction = utterances_noise_reduction(
+            utterances_w_video, self.mpath
+        )
+        utterances_w_video_mobile = prepare_videos_mobile(
+            utterances_w_noise_reduction, self.mpath
+        )
+        utterances_w_video_web = prepare_videos_web(
+            utterances_w_video_mobile, self.mpath
+        )
+        self.mpath.write_utterances(utterances_w_video_web)

@@ -11,6 +11,7 @@ from ftfy import fix_text
 import pandas as pd
 from uuid import uuid1
 
+import mentor_pipeline
 from mentor_pipeline.captions import transcript_to_vtt
 from mentor_pipeline import media_tools
 from mentor_pipeline.mentorpath import MentorPath
@@ -103,9 +104,12 @@ def _prepare_videos(
 
 
 def _timestr_to_secs(s: str) -> float:
-    h, m, s, hs = s.split(":")
+    s = s.strip() if s else ""
+    if not s:
+        return 0.0
+    h, m, s, ms = re.split(r"[:.]", s)
     td = timedelta(hours=int(h), minutes=int(m), seconds=int(s))
-    return float(td.seconds + float(hs) / 100)
+    return round(float(td.seconds) + (0 if not ms else float(ms) / (10 ** len(ms))), 2)
 
 
 @dataclass
@@ -141,7 +145,7 @@ def prepare_videos_web(utterances: UtteranceMap, mp: MentorPath) -> UtteranceMap
         utterances,
         mp,
         UTTERANCE_VIDEO_WEB,
-        _copyfile,  # for now just copying files for web
+        media_tools.video_encode_for_web,
         "prepare_videos_web",
     )
 
@@ -363,6 +367,54 @@ def update_transcripts(
     )
     result = _write_transcripts_to_utterances(transcribe_result.jobs(), utterances, mp)
     return result
+
+
+@dataclass
+class _UtteranceReduceNoise:
+    utterance: Utterance
+    noise_sample: str
+    utterance_video: str
+
+
+def utterances_noise_reduction(
+    utterances: UtteranceMap, mp: MentorPath
+) -> UtteranceMap:
+    """
+    Applies noise reduction to utterance videos if and only if noise samples are provided
+    """
+    noise_samples = mp.find_noise_samples()
+    if not noise_samples:
+        logging.info(
+            f"utterances_noise_reduction no noise samples found in {mp.get_noise_path()}"
+        )
+        return utterances
+
+    def noise_sample_for_utterance(u: Utterance) -> str:
+        uid = u.get_id()
+        for n in noise_samples:
+            if uid.startswith(os.path.splitext(os.path.basename(n))[0]):
+                return n
+        return ""
+
+    targets: List[_UtteranceReduceNoise] = []
+    for u in utterances.utterances():
+        utterance_video = mp.find_utterance_video(u)
+        if not utterance_video:
+            continue
+        noise_sample = noise_sample_for_utterance(u)
+        if not noise_sample:
+            continue
+        targets.append(
+            _UtteranceReduceNoise(
+                utterance=u, noise_sample=noise_sample, utterance_video=utterance_video
+            )
+        )
+    for i, t in enumerate(targets):
+        logging.info(
+            f"utterances_noise_reduction [{i + 1}/{len(targets)}] noise={t.noise_sample}, target={t.utterance_video}"
+        )
+        mentor_pipeline.noise.reduce_noise(t.noise_sample, t.utterance_video)
+    return utterances
 
 
 @dataclass
