@@ -38,9 +38,9 @@ def reduce_noise(
     noise_sample_sav = f"{noise_sample}.sav"
     shutil.move(noise_sample, noise_sample_sav)
     ffmpy.FFmpeg(
-            inputs={noise_sample_sav: None},
-            outputs={noise_sample: "-acodec pcm_s16le -ac 1 -ar 16000"},
-        ).run()
+        inputs={noise_sample_sav: None},
+        outputs={noise_sample: "-acodec pcm_s16le -ac 1 -ar 16000"},
+    ).run()
     noise, _ = sf.read(noise_sample)
     for f in (
         glob.glob(str(files_to_fix))  # type: ignore
