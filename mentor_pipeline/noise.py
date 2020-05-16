@@ -15,10 +15,13 @@ def _reduce_noise(noise_sample: np.ndarray, f: Union[str, os.PathLike]):
     audio_output_file = f"{fpath}.wav"
     audio_input_file = f"{fpath}-prenoisefix.wav"
     if fext != ".wav":
-        ffmpy.FFmpeg(inputs={save_file: None}, outputs={audio_input_file: None}).run()
+        ffmpy.FFmpeg(
+            inputs={save_file: None},
+            outputs={audio_input_file: "-acodec pcm_s16le -ac 1 -ar 16000"},
+        ).run()
     data, rate = sf.read(audio_input_file)
     reduced_noise = nr.reduce_noise(
-        audio_clip=data, noise_clip=noise_sample, verbose=False
+        audio_clip=data, noise_clip=noise_sample, prop_decrease=0.8, verbose=False
     )
     sf.write(audio_output_file, reduced_noise, rate)
     if fext == ".mp4":
