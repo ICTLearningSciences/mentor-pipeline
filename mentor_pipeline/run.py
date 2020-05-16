@@ -93,12 +93,8 @@ class Pipeline:
             return
         utterances_w_video = utterances_slice_video(utterances_init, self.mpath)
         self.mpath.write_utterances(utterances_w_video)
-        # TODO: add test for this
-        utterances_w_noise_reduction = utterances_noise_reduction(
-            utterances_w_video, self.mpath
-        )
         utterances_w_video_mobile = prepare_videos_mobile(
-            utterances_w_noise_reduction, self.mpath
+            utterances_w_video, self.mpath
         )
         utterances_w_video_web = prepare_videos_web(
             utterances_w_video_mobile, self.mpath
