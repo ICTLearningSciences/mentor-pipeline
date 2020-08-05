@@ -1,0 +1,9 @@
+# Ignore everything
+*
+.venv/*
+
+# But not these files...
+!mentor_pipeline/
+!mentor_pipeline/*.py
+!/tests/*.py
+!/tests/*/*.py

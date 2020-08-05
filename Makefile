@@ -27,7 +27,7 @@ test: $(VENV)
 	$(VENV)/bin/py.test -vv $(args)
 
 .PHONY: test-all
-test-all: test-format test-lint test-types test
+test-all: test-format test-lint test-types test-license test
 
 .PHONY: test-format
 test-format: $(VENV)
@@ -121,3 +121,22 @@ venv-create: virtualenv-installed
 
 virtualenv-installed:
 	$(PROJECT_ROOT)/bin/virtualenv_ensure_installed.sh
+
+LICENSE:
+	@echo "you must have a LICENSE file" 1>&2
+	exit 1
+
+LICENSE_HEADER:
+	@echo "you must have a LICENSE_HEADER file" 1>&2
+	exit 1
+
+.PHONY: license
+license: LICENSE LICENSE_HEADER node_modules/license-check-and-add
+	npm run license:fix
+
+.PHONY: test-license
+test-license: LICENSE LICENSE_HEADER node_modules/license-check-and-add
+	npm run test:license
+
+node_modules/license-check-and-add:
+	npm ci
