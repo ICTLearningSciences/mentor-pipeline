@@ -19,3 +19,4 @@ SoundFile==0.10.3.post1
 urllib3==1.25.3
 uuid==1.30
 transcribe_aws @ git+https://github.com/ictlearningsciences/py-transcribe-aws.git@1.0.2#egg=transcribe_aws
+git+git://github.com/kycarr/licenseheaders.git@master#egg=licenseheaders

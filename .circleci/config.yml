@@ -22,6 +22,13 @@ jobs:
       - run:
           name: Test format
           command: make test-format
+  test-license:
+    executor: python
+    steps:
+      - checkout
+      - run:
+          name: Test license
+          command: make test-license
   test-lint:
     executor: python
     steps:
@@ -92,6 +99,8 @@ workflows:
           filters: *only-untagged
       - test-lint:
           filters: *only-untagged
+      - test-license:
+          filters: *only-untagged
       - test-types:
         filters: *only-untagged
       - test:
@@ -103,6 +112,7 @@ workflows:
             - test
             - test-format
             - test-lint
+            - test-license
             - test-types
       - build-and-push:
           is-release-tag: false
@@ -117,6 +127,8 @@ workflows:
           filters: *only-tagged-releases
       - test-lint:
           filters: *only-tagged-releases
+      - test-license:
+          filters: *only-tagged-releases
       - test-types:
         filters: *only-tagged-releases
       - build-and-push:
@@ -126,4 +138,5 @@ workflows:
             - test
             - test-format
             - test-lint
+            - test-license
             - test-types
