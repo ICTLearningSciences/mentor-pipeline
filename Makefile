@@ -13,6 +13,10 @@ VENV=.venv
 $(VENV):
 	$(MAKE) venv-create
 
+.PHONY clean:
+clean:
+	rm -rf .venv
+
 # Builds the data processing pipeline dockerfile
 .PHONY docker-build:
 docker-build:
@@ -131,12 +135,13 @@ LICENSE_HEADER:
 	exit 1
 
 .PHONY: license
-license: LICENSE LICENSE_HEADER node_modules/license-check-and-add
-	npm run license:fix
+license: LICENSE LICENSE_HEADER $(VENV)
+	$(VENV)/bin/python3 -m licenseheaders -t LICENSE_HEADER --ext py -d bin
+	$(VENV)/bin/python3 -m licenseheaders -t LICENSE_HEADER --ext py -d tests
+	$(VENV)/bin/python3 -m licenseheaders -t LICENSE_HEADER --ext py -d mentor_pipeline
 
 .PHONY: test-license
-test-license: LICENSE LICENSE_HEADER node_modules/license-check-and-add
-	npm run test:license
-
-node_modules/license-check-and-add:
-	npm ci
+test-license: LICENSE LICENSE_HEADER $(VENV)
+	$(VENV)/bin/python3 -m licenseheaders -t LICENSE_HEADER --ext py -d bin
+	$(VENV)/bin/python3 -m licenseheaders -t LICENSE_HEADER --ext py -d tests --check
+	$(VENV)/bin/python3 -m licenseheaders -t LICENSE_HEADER --ext py -d mentor_pipeline --check
