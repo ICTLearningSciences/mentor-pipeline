@@ -2,7 +2,6 @@ PWD=$(shell pwd)
 DOCKER_IMAGE?=mentor-pipeline
 DOCKER_IMAGE_ID=$(shell docker images -q $(DOCKER_IMAGE))
 DOCKER_CONTAINER=mentor-pipeline
-PROJECT_ROOT?=$(shell git rev-parse --show-toplevel 2> /dev/null)
 WATSON_CREDENTIALS=secrets/watson_credentials.txt
 WATSON_USERNAME?=$(shell if [ -f $(WATSON_CREDENTIALS) ]; then head -n 1 $(WATSON_CREDENTIALS); else echo ""; fi)
 WATSON_PASSWORD?=$(shell if [ -f $(WATSON_CREDENTIALS) ]; then tail -n 1 $(WATSON_CREDENTIALS); else echo ""; fi)
@@ -11,7 +10,17 @@ WATSON_PASSWORD?=$(shell if [ -f $(WATSON_CREDENTIALS) ]; then tail -n 1 $(WATSO
 # virtualenv used for pytest
 VENV=.venv
 $(VENV):
-	$(MAKE) venv-create
+	$(MAKE) $(VENV)-update
+
+.PHONY: $(VENV)-update
+$(VENV)-update: virtualenv-installed
+	[ -d $(VENV) ] || virtualenv -p python3.7 $(VENV)
+	$(VENV)/bin/pip install --upgrade pip
+	$(VENV)/bin/pip install -r ./requirements.test.txt
+
+virtualenv-installed:
+	./bin/virtualenv_ensure_installed.sh
+
 
 .PHONY clean:
 clean:
@@ -116,15 +125,6 @@ videos/mentors/%: data/mentors/% docker-image-exists
 			-e WATSON_USERNAME=$(WATSON_USERNAME) \
 			-e WATSON_PASSWORD=$(WATSON_PASSWORD) \
 			$(DOCKER_IMAGE) --mentor $* --videos-update --data=/app/mounts/data/mentors
-
-.PHONY: venv-create
-venv-create: virtualenv-installed
-	[ -d $(VENV) ] || virtualenv -p python3 $(VENV)
-	$(VENV)/bin/pip install --upgrade pip
-	$(VENV)/bin/pip install -r ./requirements.test.txt
-
-virtualenv-installed:
-	$(PROJECT_ROOT)/bin/virtualenv_ensure_installed.sh
 
 LICENSE:
 	@echo "you must have a LICENSE file" 1>&2
