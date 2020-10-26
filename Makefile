@@ -14,17 +14,21 @@ $(VENV):
 
 .PHONY: $(VENV)-update
 $(VENV)-update: virtualenv-installed
-	[ -d $(VENV) ] || virtualenv -p python3.7 $(VENV)
+	[ -d $(VENV) ] || virtualenv -p python3.8 $(VENV)
 	$(VENV)/bin/pip install --upgrade pip
 	$(VENV)/bin/pip install -r ./requirements.test.txt
 
 virtualenv-installed:
 	./bin/virtualenv_ensure_installed.sh
 
-
-.PHONY clean:
+# Removes all mentor files from the local file system
+.PHONY: clean
 clean:
-	rm -rf .venv
+	rm -rf .venv htmlcov .coverage 
+
+.PHONY: deps-update
+deps-update: $(VENV)
+	. $(VENV)/bin/activate && pip-upgrade requirements*
 
 # Builds the data processing pipeline dockerfile
 .PHONY docker-build:
@@ -76,11 +80,6 @@ data/mentors/%/clean:
 videos/%/clean:
 	@echo "cleaning videos/$*..."
 	@rm -rf "videos/$*"
-
-# Removes all mentor files from the local file system
-.PHONY clean:
-clean:
-	rm -rf .venv htmlcov .coverage 
 
 
 # Runs a shell inside the data processing pipeline dockerfile
