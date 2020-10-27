@@ -4,7 +4,6 @@ click==7.1.2
 ffmpeg-normalize==1.20.1
 ffmpy==0.2.3
 ftfy==5.8
-gdown==3.8.1
 idna==2.10
 noisereduce==1.1.0
 numpy==1.19.2
@@ -17,5 +16,5 @@ requests==2.24.0
 SoundFile==0.10.3.post1
 urllib3==1.25.11
 uuid==1.30
-transcribe_aws @ git+https://github.com/ictlearningsciences/py-transcribe-aws.git@1.1.0-alpha.1#egg=transcribe_aws
+transcribe_aws @ git+https://github.com/ictlearningsciences/py-transcribe-aws.git@1.1.0#egg=transcribe_aws
 git+git://github.com/kycarr/licenseheaders.git@master#egg=licenseheaders

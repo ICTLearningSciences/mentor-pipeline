@@ -64,7 +64,7 @@ class MockMediaConverter:
                 )
             )
         if fail_on_no_calls and not expected_calls:
-            raise (Exception(f"expected mock-media-converter calls"))
+            raise (Exception("expected mock-media-converter calls"))
         self.mock_convert_src_to_tgt.assert_has_calls(expected_calls)
         if self.mock_logging_info:
             self.mock_logging_info.assert_has_calls(expected_calls_logging_info)

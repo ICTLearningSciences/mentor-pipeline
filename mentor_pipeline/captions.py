@@ -32,9 +32,9 @@ def transcript_to_vtt(transcript: str, duration: float) -> str:
     wordIndexes = find(transcript, " ")
     splitIndex = [0]
     for k in range(1, len(wordIndexes)):
-        for l in range(1, len(wordIndexes)):
-            if wordIndexes[l] > pieceLength * k:
-                splitIndex.append(wordIndexes[l])
+        for el in range(1, len(wordIndexes)):
+            if wordIndexes[el] > pieceLength * k:
+                splitIndex.append(wordIndexes[el])
                 break
     splitIndex.append(len(transcript))
     amountOfChunks = math.ceil(len(transcript) / pieceLength)

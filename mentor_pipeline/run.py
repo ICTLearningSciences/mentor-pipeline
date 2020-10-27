@@ -85,7 +85,7 @@ class Pipeline:
         utterances = self.mpath.load_utterances(create_new=False)
         if not utterances:
             logging.error(
-                f"unable to run video reduce noise with no utterances. Try data_update first."
+                "unable to run video reduce noise with no utterances. Try data_update first."
             )
             return
         utterances_noise_reduction(utterances, self.mpath)
@@ -94,7 +94,7 @@ class Pipeline:
         utterances_init = self.mpath.load_utterances(create_new=False)
         if not utterances_init:
             logging.error(
-                f"unable to run video update with no utterances. Try data_update first."
+                "unable to run video update with no utterances. Try data_update first."
             )
             return
         utterances_w_video = utterances_slice_video(utterances_init, self.mpath)
