@@ -71,7 +71,7 @@ class MockVideoToAudioConverter:
                 )
             )
         if fail_on_no_calls and not self.expected_calls:
-            raise (Exception(f"expected mock-video-to-audio calls"))
+            raise (Exception("expected mock-video-to-audio calls"))
         self.mock_video_to_audio.assert_has_calls(expected_calls)
         if self.mock_logging_info:
             self.mock_logging_info.assert_has_calls(expected_calls_logging_info)
