@@ -63,6 +63,8 @@ def test_video_encode_for_mobile_outputs_480x480_video(
         ((1024, 640), "iw-0:ih-64,scale=1024:576"),
         ((1280, 720), "iw-0:ih-0,scale=1280:720"),
         ((1920, 1080), "iw-0:ih-0,scale=1280:720"),
+        ((1091, 614), "iw-0:ih-0,scale=1092:614"),  # ensure makes scale:width even
+        ((1092, 613), "iw-2:ih-0,scale=1090:614"),  # ensure makes scale:height even
     ],
 )
 def test_video_encode_for_web_outputs_16x9_video_max_720p(
