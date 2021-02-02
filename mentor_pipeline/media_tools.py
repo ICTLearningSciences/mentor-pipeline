@@ -76,6 +76,10 @@ def video_encode_for_web(
         crop_h = i_h - (i_w * (1.0 / target_aspect))
         o_h = round(min(max_height, i_w * (1.0 / target_aspect)))
     o_w = int(o_h * target_aspect)
+    if o_w % 2 != 0:
+        o_w += 1  # ensure width is divisible by 2
+    if o_h % 2 != 0:
+        o_h += 1  # ensure height is divisible by 2
     os.makedirs(os.path.dirname(tgt_file), exist_ok=True)
     output_command = [
         "-y",
