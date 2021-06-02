@@ -14,7 +14,7 @@ pytz==2020.1
 PyYAML==5.3.1
 requests==2.24.0
 SoundFile==0.10.3.post1
-urllib3==1.25.11
+urllib3==1.26.5
 uuid==1.30
 transcribe_aws @ git+https://github.com/ictlearningsciences/py-transcribe-aws.git@1.1.0#egg=transcribe_aws
 git+git://github.com/kycarr/licenseheaders.git@master#egg=licenseheaders
