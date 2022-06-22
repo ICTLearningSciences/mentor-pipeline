@@ -6,7 +6,7 @@ ffmpy==0.2.3
 ftfy==5.8
 idna==2.10
 noisereduce==1.1.0
-numpy==1.19.2
+numpy==1.22.0
 pandas==1.1.3
 pymediainfo==4.2.1
 python-dateutil==2.8.1
